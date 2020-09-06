@@ -1,0 +1,68 @@
+* {
+  box-sizing: border-box; /* forces padding and borders into width and height of elements instead of expanding */
+}
+/* .wordListContainer {
+    display: flex;
+    justify-content: center;
+  } */
+.wordList {
+  height: 200px;
+  text-align: center;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  font-size: 16px;
+  padding: 0px;
+  margin: 0px;
+}
+.tableContainer {
+  text-align: center;
+  margin: auto;
+  width: 100%;
+  max-width: 720px;
+
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.tableInner {
+  background-color: papayawhip;
+}
+
+.activeSortIcon {
+  opacity: 1;
+  width: 20px;
+}
+
+.inactiveSortIcon {
+  opacity: 0.4;
+  width: 20px;
+}
+
+.MuiTablePaginationSpacer {
+  display: block;
+  padding: 1px;
+  overflow: hidden;
+  margin-left: 1px;
+}
+
+.MuiTablePaginationActions {
+  margin-left: 1px;
+}
+
+.tableFooter {
+  overflow: hidden;
+}
+.MuiTablePaginationInput {
+  margin-right: 4px !important;
+}
+
+.MuiTablePaginationSelectRoot {
+  margin-right: 1px;
+  margin-left: 1px;
+}
+
+@media (min-width: 769px) {
+  .tableContainer {
+    width: 70%;
+  }
+}

@@ -1,0 +1,8 @@
+The user enters a series of letters.
+From those letters, generate a list of words.
+From those words, the user is able to click them.
+Once a word is clicked, it becomes "hoverable" in the game.
+The user can choose to flip the word from vertical to horizontal.
+The user "clicks" to drop the word on the map
+
+Issues: How to handle when words intersect.
