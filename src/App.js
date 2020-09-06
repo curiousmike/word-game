@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import WordInput from "./components/wordInput/wordInput.component";
 import WordList from "./components/wordList/wordList.component";
@@ -8,9 +8,12 @@ import { Solver } from "./solver.js";
 
 function App() {
   const [words, setWords] = useState([]);
-  const [letterInput, setLetters] = useState("");
-  const [minWordLength, setMinWordLength] = useState(0);
-  const [maxWordLength, setMaxWordLength] = useState(0);
+  const [letterInput, setLetters] = useState("alphabet");
+  const [selectedRow, setSelectedRow] = useState(0);
+  const [selectedCol, setSelectedCol] = useState(0);
+  const [selectedWord, setSelectedWord] = useState(null);
+  const [hoverRow, setHoverRow] = useState(0);
+  const [hoverColumn, setHoverColumn] = useState(0);
 
   function solve() {
     handleSolveClick();
@@ -29,7 +32,6 @@ function App() {
     if (!min) {
       min = 2;
     }
-    setMinWordLength(min);
 
     var max = null;
     for (let i = 0; i < words.length; i++) {
@@ -40,7 +42,6 @@ function App() {
     if (!max) {
       max = 2;
     }
-    setMaxWordLength(max);
     console.log("Total words found = ", words.length);
   }, [letterInput, setWords]);
 
@@ -56,19 +57,48 @@ function App() {
     handleSolveClick();
   }
 
+  function tileClick(e) {
+    const value = e.target.getAttribute("id").split(",");
+    const row = parseInt(value[0]);
+    const col = parseInt(value[1]);
+    setSelectedCol(col);
+    setSelectedRow(row);
+    console.log("col, row = ", col, row);
+  }
+
+  function mouseOver(e) {
+    const value = e.target.getAttribute("id").split(",");
+    const row = parseInt(value[0]);
+    const col = parseInt(value[1]);
+    setHoverColumn(col);
+    setHoverRow(row);
+    console.log("col, row = ", col, row, selectedWord);
+  }
+
+  function onSelectWord(word) {
+    console.log("set word = ", word);
+    setSelectedWord(word);
+  }
+
   return (
     <div className="App">
-      <div class="Board">
-        <Board />
+      <div className="Board">
+        <Board
+          onClick={tileClick}
+          onMouseOver={mouseOver}
+          selectedWord={selectedWord}
+          column={hoverColumn}
+          row={hoverRow}
+        />
       </div>
-      <div class="Tools">
+      <div className="Tools">
         <WordInput
           value={letterInput}
           onKeyPress={handleKeyPress}
           onSubmit={handleSubmit}
         />
         <Button text="solve" onClick={solve} />
-        <WordList words={words} />
+        <WordList words={words} onSelect={onSelectWord} />
       </div>
     </div>
   );

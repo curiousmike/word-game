@@ -16,10 +16,18 @@ function WordList(props) {
     }
   }, [props.words, filterLength]);
 
+  function selectWord(e) {
+    props.onSelect(e.target.innerText);
+  }
+
   return (
     <ul className="wordList">
       {foundWords &&
-        foundWords.map((word, index) => <ul key={index}>{word}</ul>)}
+        foundWords.map((word, index) => (
+          <ul onClick={selectWord} key={index}>
+            {word}
+          </ul>
+        ))}
     </ul>
   );
 }
