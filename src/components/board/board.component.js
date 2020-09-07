@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import "./board.component.css";
 
 const boardDimensions = 10;
 // props = onClick onMouseOver selectedWord
 function Board(props) {
+  let boardRef = useRef(null);
+
+  useEffect(() => {
+    boardRef.focus();
+  });
+
   function createTiles() {
     let divs = [];
     let count = 0;
@@ -13,7 +19,6 @@ function Board(props) {
     let endCol = null;
     let startRow = null;
     let endRow = null;
-    console.log("props.wordDirection = ", props.wordDirection);
     if (word) {
       const wordLen = word.length;
       if (props.wordDirection !== "vertical") {
@@ -44,6 +49,9 @@ function Board(props) {
         const tileSubClass =
           (col + count) % 2 === 0 ? "tileElementEven" : "tileElementOdd";
         let internalValue = ".";
+        if (props.boardDetails[row] && props.boardDetails[row][col] !== "*") {
+          internalValue = props.boardDetails[row][col];
+        }
         if (
           props.wordDirection !== "vertical" &&
           startCol != null &&
@@ -70,6 +78,8 @@ function Board(props) {
             id={row + "," + col}
             onClick={props.onClick}
             onMouseOver={props.onMouseOver}
+            startcol={startCol}
+            startrow={startRow}
           >
             {internalValue}
           </div>
@@ -82,7 +92,16 @@ function Board(props) {
 
   var renderedOutput = createTiles();
 
-  return <div className="boardContainer">{renderedOutput}</div>;
+  return (
+    <div
+      className="boardContainer"
+      ref={(e) => {
+        boardRef = e;
+      }}
+    >
+      {renderedOutput}
+    </div>
+  );
 }
 
 export default Board;

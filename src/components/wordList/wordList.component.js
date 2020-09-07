@@ -17,6 +17,7 @@ function WordList(props) {
   }, [props.words, filterLength]);
 
   function selectWord(e) {
+    e.preventDefault();
     props.onSelect(e.target.innerText);
   }
 
