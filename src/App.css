@@ -8,6 +8,7 @@
 }
 .Board {
   grid-column-start: span 1;
+  outline: none !important; /* fix issue with border being drawn because of tabindex */
 }
 .Tools {
   grid-column: span 1;

@@ -5,8 +5,8 @@ import WordList from "./components/wordList/wordList.component";
 import Button from "./components/button/button.component";
 import Board from "./components/board/board.component";
 import { Solver } from "./solver.js";
-const boardDimensions = 10;
-
+const boardDimensions = 9;
+const emptyBoardTile = "*";
 function App() {
   const [words, setWords] = useState([]);
   const [letterInput, setLetters] = useState("alphabet");
@@ -17,19 +17,48 @@ function App() {
   const [hoverColumn, setHoverColumn] = useState(0);
   const [wordDirection, setWordDirection] = useState("horizontal");
   const [mapDetails, setMapDetails] = useState([boardDimensions]);
+  const [wordsPlaced, addWordPlaced] = useState([]); // simple array list of words put on map
 
+  function createEmptyBoard() {
+    let emptyBoard = [boardDimensions];
+    for (let row = 0; row < boardDimensions; row++) {
+      emptyBoard[row] = Array(boardDimensions);
+      for (let col = 0; col < boardDimensions; col++) {
+        emptyBoard[row][col] = emptyBoardTile;
+      }
+    }
+    return emptyBoard;
+  }
   // for useEffect, if second argument is empty array it behaves like componentDidMount *only*
   useEffect(() => {
     // code to run on component mount
-    let nullBoard = [boardDimensions];
+    let emptyBoard = createEmptyBoard();
+    setMapDetails(emptyBoard);
+    const myStorage = window.localStorage;
+    const savedMap = myStorage.getItem("map");
+    if (savedMap) {
+      setMapDetailsFromSave(savedMap);
+    }
+  }, []);
+
+  /*
+    Saved map looks like
+    A,B,L,E,*,*,*
+    *,*,*,*,*,*,*
+    *,*,*,*,*,*,*
+    So, we need to remove all commas
+    */
+  function setMapDetailsFromSave(savedData) {
+    const fixedData = savedData.replace(new RegExp(",", "g"), "");
+    let emptyBoard = [boardDimensions];
     for (let row = 0; row < boardDimensions; row++) {
-      nullBoard[row] = Array(boardDimensions);
+      emptyBoard[row] = Array(boardDimensions);
       for (let col = 0; col < boardDimensions; col++) {
-        nullBoard[row][col] = "*";
+        emptyBoard[row][col] = fixedData[row * boardDimensions + col];
       }
     }
-    setMapDetails(nullBoard);
-  }, []);
+    setMapDetails(emptyBoard);
+  }
 
   function solve() {
     handleSolveClick();
@@ -62,6 +91,7 @@ function App() {
   }, [letterInput, setWords]);
 
   function handleKeyPress(e) {
+    console.log("e = ", e);
     setLetters(e.target.value);
     if (e.key === "Enter") {
       handleSolveClick();
@@ -84,24 +114,29 @@ function App() {
     setSelectedCol(col);
     setSelectedRow(row);
 
-    let nullBoard = [boardDimensions];
+    let emptyBoard = [boardDimensions];
     for (let row = 0; row < boardDimensions; row++) {
-      nullBoard[row] = Array(boardDimensions);
+      emptyBoard[row] = Array(boardDimensions);
       for (let col = 0; col < boardDimensions; col++) {
-        nullBoard[row][col] = mapDetails[row][col];
+        emptyBoard[row][col] = mapDetails[row][col];
       }
     }
 
-    if (wordDirection === "vertical") {
-      for (let i = 0; i < selectedWord.length; i++) {
-        nullBoard[startrow + i][startcol] = selectedWord[i];
+    if (selectedWord) {
+      if (wordDirection === "vertical") {
+        for (let i = 0; i < selectedWord.length; i++) {
+          emptyBoard[startrow + i][startcol] = selectedWord[i];
+        }
+      } else {
+        for (let i = 0; i < selectedWord.length; i++) {
+          emptyBoard[startrow][startcol + i] = selectedWord[i];
+        }
       }
-    } else {
-      for (let i = 0; i < selectedWord.length; i++) {
-        nullBoard[startrow][startcol + i] = selectedWord[i];
-      }
+      setMapDetails(emptyBoard);
+      // wordsPlaced.push(selectedWord);
+      // addWordPlaced(selectedWord); // needs to be smarter array
+      setSelectedWord(null);
     }
-    setMapDetails(nullBoard);
   }
 
   function mouseOver(e) {
@@ -135,6 +170,21 @@ function App() {
     }
   }
 
+  function handleReset() {
+    let emptyBoard = createEmptyBoard();
+    setMapDetails(emptyBoard);
+    setWords([]);
+    setSelectedWord(null);
+    setSelectedRow(0);
+    setSelectedCol(0);
+    setHoverRow(0);
+    setHoverColumn(0);
+  }
+  function handleSave() {
+    const myStorage = window.localStorage;
+    localStorage.setItem("map", mapDetails);
+  }
+
   return (
     <div className="App">
       <div
@@ -162,6 +212,8 @@ function App() {
         />
         <Button text="solve" onClick={solve} />
         <WordList words={words} onSelect={onSelectWord} />
+        <Button text="reset" onClick={handleReset} />
+        <Button text="save" onClick={handleSave} />
       </div>
     </div>
   );
