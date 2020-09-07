@@ -1,8 +1,9 @@
 import React, { useRef, useEffect } from "react";
 import "./board.component.css";
 
-const boardDimensions = 10;
-// props = onClick onMouseOver selectedWord
+const boardDimensions = 9;
+const emptyBoardTile = "*";
+
 function Board(props) {
   let boardRef = useRef(null);
 
@@ -21,7 +22,7 @@ function Board(props) {
     let endRow = null;
     if (word) {
       const wordLen = word.length;
-      if (props.wordDirection !== "vertical") {
+      if (props.wordDirection === "horizontal") {
         startCol = Math.floor(props.hoverColumn - wordLen / 2);
         if (startCol < 0) {
           startCol = 0;
@@ -46,29 +47,34 @@ function Board(props) {
 
     for (let row = 0; row < boardDimensions; row++) {
       for (let col = 0; col < boardDimensions; col++) {
-        const tileSubClass =
-          (col + count) % 2 === 0 ? "tileElementEven" : "tileElementOdd";
+        let tileSubClass = "tileElementUnused";
         let internalValue = ".";
-        if (props.boardDetails[row] && props.boardDetails[row][col] !== "*") {
+        if (
+          props.boardDetails[row] &&
+          props.boardDetails[row][col] !== emptyBoardTile
+        ) {
           internalValue = props.boardDetails[row][col];
+          tileSubClass = "tileElementUsed";
         }
         if (
           props.wordDirection !== "vertical" &&
           startCol != null &&
           row === startRow &&
           col >= startCol &&
-          col <= endCol
+          col < endCol
         ) {
           const wordIndex = col - startCol;
           internalValue = props.selectedWord[wordIndex];
+          tileSubClass = "tileElementPlacing";
         } else if (
           startRow != null &&
           col === startCol &&
           row >= startRow &&
-          row <= endRow
+          row < endRow
         ) {
           const wordIndex = row - startRow;
           internalValue = props.selectedWord[wordIndex];
+          tileSubClass = "tileElementPlacing";
         }
 
         divs.push(

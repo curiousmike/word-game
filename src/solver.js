@@ -62,7 +62,7 @@ function generateWordCombos(letters) {
         !gUseLimit ||
         !isValidLimit
       ) {
-        foundWords.push(globalWordList[i]);
+        foundWords.push(globalWordList[i].toUpperCase());
       }
     }
   }
