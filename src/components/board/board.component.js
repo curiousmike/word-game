@@ -7,10 +7,40 @@ function Board(props) {
   function createTiles() {
     let divs = [];
     let count = 0;
+
+    const word = props.selectedWord;
+    let startCol = null;
+    let endCol = null;
+    let startRow = null;
+    if (word) {
+      const wordLen = word.length;
+      startCol = Math.floor(props.hoverColumn - wordLen / 2);
+      if (startCol < 0) {
+        startCol = 0;
+      }
+      if (startCol + wordLen > boardDimensions) {
+        startCol = boardDimensions - wordLen;
+      }
+      endCol = startCol + wordLen;
+      startRow = props.hoverRow;
+    }
+
     for (let row = 0; row < boardDimensions; row++) {
       for (let col = 0; col < boardDimensions; col++) {
         const tileSubClass =
           (col + count) % 2 === 0 ? "tileElementEven" : "tileElementOdd";
+        let internalValue = ".";
+        if (
+          startCol != null &&
+          row === startRow &&
+          col >= startCol &&
+          col <= endCol
+        ) {
+          const wordIndex = col - startCol;
+          console.log("wordIndex =", wordIndex);
+          internalValue = props.selectedWord[wordIndex];
+        }
+
         divs.push(
           <div
             className={"tileElement " + tileSubClass}
@@ -19,9 +49,7 @@ function Board(props) {
             onClick={props.onClick}
             onMouseOver={props.onMouseOver}
           >
-            {row === props.row && col === props.column && props.selectedWord
-              ? props.selectedWord
-              : "x"}
+            {internalValue}
           </div>
         );
       }
@@ -29,7 +57,9 @@ function Board(props) {
     }
     return divs;
   }
+
   var renderedOutput = createTiles();
+
   return <div className="boardContainer">{renderedOutput}</div>;
 }
 
