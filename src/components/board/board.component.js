@@ -12,17 +12,31 @@ function Board(props) {
     let startCol = null;
     let endCol = null;
     let startRow = null;
+    let endRow = null;
+    console.log("props.wordDirection = ", props.wordDirection);
     if (word) {
       const wordLen = word.length;
-      startCol = Math.floor(props.hoverColumn - wordLen / 2);
-      if (startCol < 0) {
-        startCol = 0;
+      if (props.wordDirection !== "vertical") {
+        startCol = Math.floor(props.hoverColumn - wordLen / 2);
+        if (startCol < 0) {
+          startCol = 0;
+        }
+        if (startCol + wordLen > boardDimensions) {
+          startCol = boardDimensions - wordLen;
+        }
+        endCol = startCol + wordLen;
+        startRow = props.hoverRow;
+      } else {
+        startRow = Math.floor(props.hoverRow - wordLen / 2);
+        if (startRow < 0) {
+          startRow = 0;
+        }
+        if (startRow + wordLen > boardDimensions) {
+          startRow = boardDimensions - wordLen;
+        }
+        endRow = startRow + wordLen;
+        startCol = props.hoverColumn;
       }
-      if (startCol + wordLen > boardDimensions) {
-        startCol = boardDimensions - wordLen;
-      }
-      endCol = startCol + wordLen;
-      startRow = props.hoverRow;
     }
 
     for (let row = 0; row < boardDimensions; row++) {
@@ -31,13 +45,21 @@ function Board(props) {
           (col + count) % 2 === 0 ? "tileElementEven" : "tileElementOdd";
         let internalValue = ".";
         if (
+          props.wordDirection !== "vertical" &&
           startCol != null &&
           row === startRow &&
           col >= startCol &&
           col <= endCol
         ) {
           const wordIndex = col - startCol;
-          console.log("wordIndex =", wordIndex);
+          internalValue = props.selectedWord[wordIndex];
+        } else if (
+          startRow != null &&
+          col === startCol &&
+          row >= startRow &&
+          row <= endRow
+        ) {
+          const wordIndex = row - startRow;
           internalValue = props.selectedWord[wordIndex];
         }
 

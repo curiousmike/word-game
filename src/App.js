@@ -63,7 +63,6 @@ function App() {
     const col = parseInt(value[1]);
     setSelectedCol(col);
     setSelectedRow(row);
-    console.log("col, row = ", col, row);
   }
 
   function mouseOver(e) {
@@ -72,14 +71,16 @@ function App() {
     const col = parseInt(value[1]);
     setHoverColumn(col);
     setHoverRow(row);
-    console.log("col, row = ", col, row, selectedWord);
   }
 
   function onSelectWord(word) {
-    console.log("set word = ", word);
     setSelectedWord(word);
   }
 
+  function handleGlobalKeyPress(e) {
+    console.log("keypress e = ", e);
+    // if e.value == 'space' wordDirection = otherDirection;
+  }
   return (
     <div className="App">
       <div className="Board">
@@ -89,6 +90,8 @@ function App() {
           selectedWord={selectedWord}
           hoverColumn={hoverColumn}
           hoverRow={hoverRow}
+          wordDirection="vertical"
+          onKeyDown={handleGlobalKeyPress}
         />
       </div>
       <div className="Tools">
