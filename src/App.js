@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./App.css";
 import WordInput from "./components/wordInput/wordInput.component";
 import WordList from "./components/wordList/wordList.component";
@@ -87,8 +87,8 @@ function App() {
           onClick={tileClick}
           onMouseOver={mouseOver}
           selectedWord={selectedWord}
-          column={hoverColumn}
-          row={hoverRow}
+          hoverColumn={hoverColumn}
+          hoverRow={hoverRow}
         />
       </div>
       <div className="Tools">
