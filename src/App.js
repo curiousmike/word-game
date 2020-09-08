@@ -48,8 +48,7 @@ function App() {
     const myStorage = window.localStorage;
     //    myStorage.removeItem("map");
     const mapData = JSON.parse(myStorage.getItem("map"));
-    console.log("loaded maps = ", mapData);
-    setAllMapData(mapData);
+    setAllMapData(mapData ? mapData : []);
   }
   /*
    */
