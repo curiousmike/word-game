@@ -46,8 +46,8 @@ function App() {
 
   function loadMaps() {
     const myStorage = window.localStorage;
-    //    myStorage.removeItem("map");
     const mapData = JSON.parse(myStorage.getItem("map"));
+    console.log ("loadMaps, data = ", mapData);
     setAllMapData(mapData ? mapData : []);
   }
   /*
@@ -62,6 +62,8 @@ function App() {
       }
     }
     setMapDetails(emptyBoard);
+    setLetters(allMapData[mapSaveIndex].letterInput);
+    setWords (allMapData[mapSaveIndex].words);
   }
 
   function solve() {
@@ -94,12 +96,8 @@ function App() {
     console.log("Total words found = ", words.length);
   }, [letterInput, setWords]);
 
-  function handleKeyPress(e) {
-    console.log("e = ", e);
-    setLetters(e.target.value);
-    if (e.key === "Enter") {
-      handleSolveClick();
-    }
+  function handleLettersChanged(letters) {
+    setLetters(letters);
   }
 
   function handleSubmit(e) {
@@ -204,6 +202,8 @@ function App() {
     newMapData.name = mapSaveName;
     newMapData.details = mapDetails;
     newMapData.wordsPlaced = wordsPlaced;
+    newMapData.letterInput = letterInput;
+    newMapData.words = words;
     let currentMapData = allMapData;
     currentMapData.push(newMapData);
 
@@ -233,7 +233,7 @@ function App() {
       <div className="Tools">
         <WordInput
           value={letterInput}
-          onKeyPress={handleKeyPress}
+          onChange={handleLettersChanged}
           onSubmit={handleSubmit}
         />
         <Button text="solve" onClick={solve} />

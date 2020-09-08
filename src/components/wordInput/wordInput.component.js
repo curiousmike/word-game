@@ -16,14 +16,21 @@ import React from "react";
 
 function WordInput(props) {
   //   const classes = useStyles();
+  function handleChange (e) {
+    if (e.key === "Enter"){
+      props.onSubmit();
+    } else {
+    props.onChange(e.target.value);
+    }
+  }
   return (
     // <div className={classes.container}>
     <div>
       <form onSubmit={props.onSubmit}>
         <input
           placeholder="enter letters here"
-          defaultValue={props.value}
-          onChange={props.onChange}
+          onChange={handleChange}
+          value={props.value}
           onKeyUp={props.onKeyPress}
           label="Enter letters here"
         />
