@@ -17,8 +17,9 @@ function App() {
   const [hoverColumn, setHoverColumn] = useState(0);
   const [wordDirection, setWordDirection] = useState("horizontal");
   const [mapDetails, setMapDetails] = useState([boardDimensions]);
-  const [wordsPlaced, addWordPlaced] = useState([]); // simple array list of words put on map
-
+  const [wordsPlaced, setWordsPlaced] = useState([]); // simple array list of words put on map
+  const [mapSaveName, setMapSaveName] = useState(null);
+  const [allMapData, setAllMapData] = useState([]); // the loaded / saved maps.
   function createEmptyBoard() {
     let emptyBoard = [boardDimensions];
     for (let row = 0; row < boardDimensions; row++) {
@@ -34,27 +35,31 @@ function App() {
     // code to run on component mount
     let emptyBoard = createEmptyBoard();
     setMapDetails(emptyBoard);
-    const myStorage = window.localStorage;
-    const savedMap = myStorage.getItem("map");
-    if (savedMap) {
-      setMapDetailsFromSave(savedMap);
-    }
+    loadMaps();
   }, []);
 
+  useEffect(() => {
+    if (allMapData.length > 0) {
+      setMapDetailsFromSave(0);
+    }
+  }, [allMapData]);
+
+  function loadMaps() {
+    const myStorage = window.localStorage;
+    //    myStorage.removeItem("map");
+    const mapData = JSON.parse(myStorage.getItem("map"));
+    console.log("loaded maps = ", mapData);
+    setAllMapData(mapData);
+  }
   /*
-    Saved map looks like
-    A,B,L,E,*,*,*
-    *,*,*,*,*,*,*
-    *,*,*,*,*,*,*
-    So, we need to remove all commas
-    */
-  function setMapDetailsFromSave(savedData) {
-    const fixedData = savedData.replace(new RegExp(",", "g"), "");
+   */
+  function setMapDetailsFromSave(mapSaveIndex) {
     let emptyBoard = [boardDimensions];
     for (let row = 0; row < boardDimensions; row++) {
       emptyBoard[row] = Array(boardDimensions);
       for (let col = 0; col < boardDimensions; col++) {
-        emptyBoard[row][col] = fixedData[row * boardDimensions + col];
+        const data = allMapData[mapSaveIndex].details[row][col];
+        emptyBoard[row][col] = data;
       }
     }
     setMapDetails(emptyBoard);
@@ -133,8 +138,18 @@ function App() {
         }
       }
       setMapDetails(emptyBoard);
-      // wordsPlaced.push(selectedWord);
-      // addWordPlaced(selectedWord); // needs to be smarter array
+
+      const wordPlacedDetails = {
+        direction: wordDirection,
+        startCol: startcol,
+        startRow: startrow,
+        word: selectedWord,
+      };
+
+      let currentWordsPlaced = wordsPlaced;
+      console.log("wordPlaced details = ", wordPlacedDetails);
+      currentWordsPlaced.push(wordPlacedDetails);
+      setWordsPlaced(currentWordsPlaced);
       setSelectedWord(null);
     }
   }
@@ -180,9 +195,21 @@ function App() {
     setHoverRow(0);
     setHoverColumn(0);
   }
+
+  function setSaveMapName(e) {
+    setMapSaveName(e.target.value);
+  }
+
   function handleSave() {
+    let newMapData = {};
+    newMapData.name = mapSaveName;
+    newMapData.details = mapDetails;
+    newMapData.wordsPlaced = wordsPlaced;
+    let currentMapData = allMapData;
+    currentMapData.push(newMapData);
+
     const myStorage = window.localStorage;
-    localStorage.setItem("map", mapDetails);
+    myStorage.setItem("map", JSON.stringify(currentMapData));
   }
 
   return (
@@ -213,7 +240,16 @@ function App() {
         <Button text="solve" onClick={solve} />
         <WordList words={words} onSelect={onSelectWord} />
         <Button text="reset" onClick={handleReset} />
-        <Button text="save" onClick={handleSave} />
+        <div>
+          <form>
+            <input
+              placeholder="enter map name"
+              label="Enter letters here"
+              onChange={setSaveMapName}
+            />
+          </form>
+          <Button text="save" onClick={handleSave} />
+        </div>
       </div>
     </div>
   );
