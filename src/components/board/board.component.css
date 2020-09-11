@@ -1,12 +1,15 @@
 .boardContainer {
   display: grid;
+  justify-content: space-evenly;
   grid-template-columns: 10% 10% 10% 10% 10% 10% 10% 10% 10%;
   grid-template-rows: 10% 10% 10% 10% 10% 10% 10% 10% 10%;
 }
 .tileElement {
   display: grid;
-  width: 64px;
-  height: 64px;
+  /* width: 64px;
+  height: 64px; */
+  padding: 8px;
+  margin: 8px;
   justify-content: center;
   align-content: center;
   font-size: 32px;
