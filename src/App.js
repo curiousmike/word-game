@@ -5,7 +5,7 @@ import WordList from "./components/wordList/wordList.component";
 import Button from "./components/button/button.component";
 import Board from "./components/board/board.component";
 import { Solver } from "./solver.js";
-const boardDimensions = 9;
+const boardDimensions = 10;
 const emptyBoardTile = "*";
 function App() {
   const [words, setWords] = useState([]);
@@ -46,6 +46,7 @@ function App() {
 
   function loadMaps() {
     const myStorage = window.localStorage;
+    // myStorage.clear(); Resets all saved data
     const mapData = JSON.parse(myStorage.getItem("map"));
     console.log ("loadMaps, data = ", mapData);
     setAllMapData(mapData ? mapData : []);
@@ -53,6 +54,10 @@ function App() {
   /*
    */
   function setMapDetailsFromSave(mapSaveIndex) {
+    const savedBoardDimensions = allMapData[mapSaveIndex].details.length;
+    if (savedBoardDimensions !== boardDimensions) {
+      return;
+    }
     let emptyBoard = [boardDimensions];
     for (let row = 0; row < boardDimensions; row++) {
       emptyBoard[row] = Array(boardDimensions);

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import "./board.component.css";
 
-const boardDimensions = 9;
+const boardDimensions = 10;
 const emptyBoardTile = "*";
 
 function Board(props) {
