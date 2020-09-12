@@ -15,7 +15,8 @@ function Board(props) {
     let divs = [];
     let count = 0;
 
-    const word = props.selectedWord;
+    const word = props.placingWord;
+    const selectedWord = props.selectedWordDetails;
     let startCol = null;
     let endCol = null;
     let startRow = null;
@@ -57,6 +58,15 @@ function Board(props) {
         ) {
           internalValue = props.boardDetails[row][col];
           tileSubClass = "tileElementUsed";
+          if (
+            selectedWord &&
+            row >= selectedWord.startRow &&
+            row <= selectedWord.endRow &&
+            col >= selectedWord.startCol &&
+            col <= selectedWord.endCol
+          ) {
+            tileSubClass = "tileElementUsedSelected";
+          }
         }
         if (
           props.wordDirection !== "vertical" &&
@@ -66,7 +76,7 @@ function Board(props) {
           col < endCol
         ) {
           const wordIndex = col - startCol;
-          internalValue = props.selectedWord[wordIndex];
+          internalValue = word[wordIndex];
           tileSubClass = "tileElementPlacing";
         } else if (
           startRow != null &&
@@ -75,7 +85,7 @@ function Board(props) {
           row < endRow
         ) {
           const wordIndex = row - startRow;
-          internalValue = props.selectedWord[wordIndex];
+          internalValue = word[wordIndex];
           tileSubClass = "tileElementPlacing";
         }
 

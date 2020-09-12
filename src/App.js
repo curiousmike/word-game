@@ -10,9 +10,8 @@ const emptyBoardTile = "*";
 function App() {
   const [wordsFound, setWordsFound] = useState([]);
   const [letterInput, setLetters] = useState("alphabet");
-  const [selectedRow, setSelectedRow] = useState(0);
-  const [selectedCol, setSelectedCol] = useState(0);
-  const [selectedWord, setSelectedWord] = useState(null);
+  const [selectedWordDetails, setSelectedWordDetails] = useState(null);
+  const [placingWord, setPlacingWord] = useState(null);
   const [hoverRow, setHoverRow] = useState(0);
   const [hoverColumn, setHoverColumn] = useState(0);
   const [wordDirection, setWordDirection] = useState("horizontal");
@@ -44,7 +43,7 @@ function App() {
 
   function escFunction(event) {
     if (event.keyCode === 27) {
-      setSelectedWord(null);
+      setPlacingWord(null);
     }
   }
   useEffect(() => {
@@ -68,7 +67,7 @@ function App() {
   // when a word is selected, give the board focus.
   useEffect(() => {
     boardRef.current.focus();
-  }, [selectedWord]);
+  }, [placingWord]);
 
   function createBoardWithPlacedWords(mapSaveIndex = 0) {
     let newBoard = [boardDimensions];
@@ -121,6 +120,48 @@ function App() {
     handleSolveClick();
   }
 
+  function doesWordExistHere(row, col) {
+    for (var i = 0; i < wordsPlaced.length; i++) {
+      const wordDetails = wordsPlaced[i];
+
+      let wordLen = wordDetails.word.length;
+      if (
+        wordDetails.direction === "horizontal" &&
+        col >= wordDetails.startCol &&
+        col < wordDetails.startCol + wordLen &&
+        wordDetails.startRow === row
+      ) {
+        const selectedWordDetails = {
+          index: i,
+          startCol: wordDetails.startCol,
+          endCol: wordDetails.startCol + wordLen,
+          startRow: wordDetails.startRow,
+          endRow: wordDetails.startRow,
+        };
+        setSelectedWordDetails(selectedWordDetails);
+        return true;
+      }
+      if (
+        wordDetails.direction === "vertical" &&
+        row >= wordDetails.startRow &&
+        row < wordDetails.startRow + wordLen &&
+        wordDetails.startCol === col
+      ) {
+        const selectedWordDetails = {
+          index: i,
+          startCol: wordDetails.startCol,
+          endCol: wordDetails.startCol,
+          startRow: wordDetails.startRow,
+          endRow: wordDetails.startRow + wordLen,
+        };
+        setSelectedWordDetails(selectedWordDetails);
+        return true;
+      }
+    }
+    setSelectedWordDetails(null);
+    return false;
+  }
+
   function tileClick(e) {
     const value = e.target.getAttribute("id").split(",");
     const startcol = parseInt(e.target.getAttribute("startcol"));
@@ -129,18 +170,21 @@ function App() {
     const row = parseInt(value[0]);
     const col = parseInt(value[1]);
 
-    setSelectedCol(col);
-    setSelectedRow(row);
-
-    if (selectedWord) {
+    if (placingWord) {
       const wordPlacedDetails = {
         direction: wordDirection,
         startCol: startcol,
         startRow: startrow,
-        word: selectedWord,
+        word: placingWord,
       };
       setWordsPlaced(wordsPlaced.concat(wordPlacedDetails));
-      setSelectedWord(null);
+      setPlacingWord(null);
+    } else {
+      if (doesWordExistHere(row, col)) {
+        console.log("yes");
+      } else {
+        console.log("no");
+      }
     }
   }
 
@@ -153,25 +197,31 @@ function App() {
   }
 
   function onSelectWord(word) {
-    setSelectedWord(word);
+    setPlacingWord(word);
   }
 
+  function flipWordDirection() {
+    if (wordDirection === "vertical") {
+      setWordDirection("horizontal");
+    } else {
+      setWordDirection("vertical");
+    }
+  }
   function handleGlobalKeyPress(e) {
     if (e.key === " ") {
-      if (wordDirection === "vertical") {
-        setWordDirection("horizontal");
-      } else {
-        setWordDirection("vertical");
-      }
+      flipWordDirection();
     }
   }
 
   function handleDirectionFlip(e) {
     e.preventDefault();
-    if (wordDirection === "vertical") {
-      setWordDirection("horizontal");
-    } else {
-      setWordDirection("vertical");
+    flipWordDirection();
+  }
+
+  function handleDeleteSelected(e) {
+    e.preventDefault();
+    if (selectedWordDetails) {
+      console.log("delete a word = ", selectedWordDetails);
     }
   }
 
@@ -180,11 +230,10 @@ function App() {
     setMapDetails(emptyBoard);
     setWordsFound([]);
     setWordsPlaced([]);
-    setSelectedWord(null);
-    setSelectedRow(0);
-    setSelectedCol(0);
+    setPlacingWord(null);
     setHoverRow(0);
     setHoverColumn(0);
+    setSelectedWordDetails(null);
   }
 
   function setSaveMapName(e) {
@@ -213,28 +262,32 @@ function App() {
   function boardOnBlur() {
     console.log("board on blur");
   }
-
+  function onWheel() {
+    flipWordDirection();
+  }
   return (
     <div className="App">
       <div
         className="Board"
         tabIndex="0"
-        onContextMenu={handleDirectionFlip}
+        onContextMenu={handleDeleteSelected}
         onKeyPress={handleGlobalKeyPress}
         onFocus={boardOnFocus}
         onBlur={boardOnBlur}
         ref={boardRef}
+        onWheel={onWheel}
       >
         <Board
           onClick={tileClick}
           onMouseOver={mouseOver}
           onKeyDown={handleGlobalKeyPress}
-          selectedWord={selectedWord}
+          placingWord={placingWord}
           hoverColumn={hoverColumn}
           hoverRow={hoverRow}
           wordDirection={wordDirection}
           boardDetails={mapDetails}
           isEditor={isEditor}
+          selectedWordDetails={selectedWordDetails}
         />
       </div>
       {/* <div className="letterChoicesContainer">here</div> */}
