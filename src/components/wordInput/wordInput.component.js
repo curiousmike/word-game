@@ -1,31 +1,16 @@
 import React from "react";
-
-// const useStyles = makeStyles({
-//   input: {
-//     background: "#DAF7A6",
-//     "text-align": "center",
-//   },
-//   inputText: {
-//     fontSize: "28px",
-//   },
-//   container: {
-//     margin: "0px auto 8px",
-//     textAlign: "center",
-//   },
-// });
+import "./wordInput.component.css";
 
 function WordInput(props) {
-  //   const classes = useStyles();
-  function handleChange (e) {
-    if (e.key === "Enter"){
+  function handleChange(e) {
+    if (e.key === "Enter") {
       props.onSubmit();
     } else {
-    props.onChange(e.target.value);
+      props.onChange(e.target.value);
     }
   }
   return (
-    // <div className={classes.container}>
-    <div>
+    <div className="wordInput">
       <form onSubmit={props.onSubmit}>
         <input
           placeholder="enter letters here"

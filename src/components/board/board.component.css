@@ -4,7 +4,11 @@
   grid-template-columns: repeat(10, 10%);
   height: 80vh;
   width: 80vh;
-  background: #7cb9e8;
+  background: linear-gradient(117deg, #00d0ff, #b1f5f9, #0055e2);
+  background-size: 600% 600%;
+  -webkit-animation: BoardbackgroundAnimation 12s ease infinite;
+  -moz-animation: BoardbackgroundAnimation 12s ease infinite;
+  animation: BoardbackgroundAnimation 12s ease infinite;
 }
 
 .tileElement {
@@ -17,6 +21,40 @@
 }
 .tileElementUnused {
   background-color: rgba(200, 200, 200, 0.2);
+}
+
+@-webkit-keyframes BoardbackgroundAnimation {
+  0% {
+    background-position: 0% 14%;
+  }
+  50% {
+    background-position: 100% 87%;
+  }
+  100% {
+    background-position: 0% 14%;
+  }
+}
+@-moz-keyframes BoardbackgroundAnimation {
+  0% {
+    background-position: 0% 14%;
+  }
+  50% {
+    background-position: 100% 87%;
+  }
+  100% {
+    background-position: 0% 14%;
+  }
+}
+@keyframes BoardbackgroundAnimation {
+  0% {
+    background-position: 0% 14%;
+  }
+  50% {
+    background-position: 100% 87%;
+  }
+  100% {
+    background-position: 0% 14%;
+  }
 }
 
 @-webkit-keyframes PlacingElementAnimation {

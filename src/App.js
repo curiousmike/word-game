@@ -20,10 +20,8 @@ function App() {
   const [wordsPlaced, setWordsPlaced] = useState([]); // simple array list of words put on map
   const [mapSaveName, setMapSaveName] = useState(null);
   const [allMapData, setAllMapData] = useState([]); // the loaded / saved maps.
-
+  const [isEditor, setIsEditor] = useState(true);
   const boardRef = useRef(null); // using this to set the board to focus once word is selected.  This makes keyboard interactivity work immediately
-
-  const isEditor = true; // in editor(map making) mode or game mode.
 
   function createEmptyBoard() {
     let emptyBoard = [boardDimensions];
@@ -206,6 +204,9 @@ function App() {
     myStorage.setItem("map", JSON.stringify(currentMapData));
   }
 
+  function handlePreview() {
+    setIsEditor(!isEditor);
+  }
   function boardOnFocus() {
     console.log("board got focus");
   }
@@ -236,26 +237,32 @@ function App() {
           isEditor={isEditor}
         />
       </div>
+      {/* <div className="letterChoicesContainer">here</div> */}
       <div className="Tools">
-        <WordInput
-          value={letterInput}
-          onChange={handleLettersChanged}
-          onSubmit={handleSubmit}
-        />
-        <Button text="solve" onClick={solve} />
+        <div className="wordInputContainer">
+          <WordInput
+            value={letterInput}
+            onChange={handleLettersChanged}
+            onSubmit={handleSubmit}
+          />
+          <Button text="Solve" onClick={solve} />
+        </div>
         <WordList words={wordsFound} onSelect={onSelectWord} />
-        <Button text="reset" onClick={handleReset} />
-        <div>
+        <Button text="Reset map" onClick={handleReset} />
+        <div className="mapLoadSave">
           <form>
-            <input
-              placeholder="enter map name"
-              label="Enter letters here"
-              onChange={setSaveMapName}
-            />
+            <input placeholder="Map name to load" onChange={setSaveMapName} />
           </form>
-          Filename {mapSaveName ? mapSaveName : "no file"}
+          File Loaded ={" "}
+          <span className="fileName">
+            {mapSaveName ? mapSaveName : "no file"}
+          </span>
           <Button text="save" onClick={handleSave} />
         </div>
+        <Button
+          text={isEditor ? "Preview Game OFF" : "Preview Game ON"}
+          onClick={handlePreview}
+        />
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
   text-align: center;
   display: grid;
   grid-template-columns: 80% 20%;
-  grid-template-rows: 100%;
+  grid-template-rows: 80% 20%;
 }
 .Board {
   grid-column-start: span 1;
@@ -10,4 +10,22 @@
 }
 .Tools {
   grid-column: span 1;
+}
+
+.mapLoadSave {
+  background-color: lightblue;
+  margin: 8px;
+  padding: 8px;
+  border-style: solid;
+}
+
+.wordInputContainer {
+  background-color: lightpink;
+  margin: 4px;
+  padding: 4px;
+  border-style: solid;
+}
+.fileName {
+  color: blue;
+  font-weight: 800;
 }
