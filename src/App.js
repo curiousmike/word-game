@@ -133,6 +133,7 @@ function App() {
       ) {
         const selectedWordDetails = {
           index: i,
+          word: wordDetails.word,
           startCol: wordDetails.startCol,
           endCol: wordDetails.startCol + wordLen,
           startRow: wordDetails.startRow,
@@ -149,6 +150,7 @@ function App() {
       ) {
         const selectedWordDetails = {
           index: i,
+          word: wordDetails.word,
           startCol: wordDetails.startCol,
           endCol: wordDetails.startCol,
           startRow: wordDetails.startRow,
@@ -221,7 +223,11 @@ function App() {
   function handleDeleteSelected(e) {
     e.preventDefault();
     if (selectedWordDetails) {
-      console.log("delete a word = ", selectedWordDetails);
+      const updateWordsPlaced = wordsPlaced.filter(
+        (word) => word.word !== selectedWordDetails.word
+      );
+      setWordsPlaced(updateWordsPlaced);
+      setSelectedWordDetails(null);
     }
   }
 
