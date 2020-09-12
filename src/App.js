@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import WordInput from "./components/wordInput/wordInput.component";
 import WordList from "./components/wordList/wordList.component";
@@ -20,6 +20,8 @@ function App() {
   const [wordsPlaced, setWordsPlaced] = useState([]); // simple array list of words put on map
   const [mapSaveName, setMapSaveName] = useState(null);
   const [allMapData, setAllMapData] = useState([]); // the loaded / saved maps.
+
+  const boardRef = useRef(null); // using this to set the board to focus once word is selected.  This makes keyboard interactivity work immediately
 
   function createEmptyBoard() {
     let emptyBoard = [boardDimensions];
@@ -62,6 +64,11 @@ function App() {
     const mapData = JSON.parse(myStorage.getItem("map"));
     setAllMapData(mapData ? mapData : []);
   }
+
+  // when a word is selected, give the board focus.
+  useEffect(() => {
+    boardRef.current.focus();
+  }, [selectedWord]);
 
   function createBoardWithPlacedWords(mapSaveIndex = 0) {
     let newBoard = [boardDimensions];
@@ -216,6 +223,13 @@ function App() {
     myStorage.setItem("map", JSON.stringify(currentMapData));
   }
 
+  function boardOnFocus() {
+    console.log("board got focus");
+  }
+  function boardOnBlur() {
+    console.log("board on blur");
+  }
+
   return (
     <div className="App">
       <div
@@ -223,6 +237,9 @@ function App() {
         tabIndex="0"
         onContextMenu={handleDirectionFlip}
         onKeyPress={handleGlobalKeyPress}
+        onFocus={boardOnFocus}
+        onBlur={boardOnBlur}
+        ref={boardRef}
       >
         <Board
           onClick={tileClick}
