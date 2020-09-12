@@ -8,7 +8,7 @@ import { Solver } from "./solver.js";
 const boardDimensions = 10;
 const emptyBoardTile = "*";
 function App() {
-  const [words, setWords] = useState([]);
+  const [wordsFound, setWordsFound] = useState([]);
   const [letterInput, setLetters] = useState("alphabet");
   const [selectedRow, setSelectedRow] = useState(0);
   const [selectedCol, setSelectedCol] = useState(0);
@@ -22,6 +22,8 @@ function App() {
   const [allMapData, setAllMapData] = useState([]); // the loaded / saved maps.
 
   const boardRef = useRef(null); // using this to set the board to focus once word is selected.  This makes keyboard interactivity work immediately
+
+  const isEditor = true; // in editor(map making) mode or game mode.
 
   function createEmptyBoard() {
     let emptyBoard = [boardDimensions];
@@ -100,7 +102,7 @@ function App() {
     setMapSaveName(allMapData[mapSaveIndex].name);
     setWordsPlaced(allMapData[mapSaveIndex].wordsPlaced);
     setLetters(allMapData[mapSaveIndex].letterInput);
-    setWords(allMapData[mapSaveIndex].words);
+    setWordsFound(allMapData[mapSaveIndex].wordsFound);
   }
 
   function solve() {
@@ -108,29 +110,9 @@ function App() {
   }
 
   const handleSolveClick = React.useCallback(() => {
-    const words = Solver(letterInput);
-    setWords(words);
-
-    var min = null;
-    for (let i = 0; i < words.length; i++) {
-      if (words[i].length < min || !min) {
-        min = words[i].length;
-      }
-    }
-    if (!min) {
-      min = 2;
-    }
-
-    var max = null;
-    for (let i = 0; i < words.length; i++) {
-      if (words[i].length > max || !max) {
-        max = words[i].length;
-      }
-    }
-    if (!max) {
-      max = 2;
-    }
-  }, [letterInput, setWords]);
+    const wordsFound = Solver(letterInput);
+    setWordsFound(wordsFound);
+  }, [letterInput, setWordsFound]);
 
   function handleLettersChanged(letters) {
     setLetters(letters);
@@ -198,7 +180,8 @@ function App() {
   function handleReset() {
     let emptyBoard = createEmptyBoard();
     setMapDetails(emptyBoard);
-    setWords([]);
+    setWordsFound([]);
+    setWordsPlaced([]);
     setSelectedWord(null);
     setSelectedRow(0);
     setSelectedCol(0);
@@ -215,7 +198,7 @@ function App() {
     newMapData.name = mapSaveName;
     newMapData.wordsPlaced = wordsPlaced;
     newMapData.letterInput = letterInput;
-    newMapData.words = words;
+    newMapData.wordsFound = wordsFound;
     let currentMapData = allMapData;
     currentMapData.push(newMapData);
 
@@ -250,6 +233,7 @@ function App() {
           hoverRow={hoverRow}
           wordDirection={wordDirection}
           boardDetails={mapDetails}
+          isEditor={isEditor}
         />
       </div>
       <div className="Tools">
@@ -259,7 +243,7 @@ function App() {
           onSubmit={handleSubmit}
         />
         <Button text="solve" onClick={solve} />
-        <WordList words={words} onSelect={onSelectWord} />
+        <WordList words={wordsFound} onSelect={onSelectWord} />
         <Button text="reset" onClick={handleReset} />
         <div>
           <form>
@@ -269,6 +253,7 @@ function App() {
               onChange={setSaveMapName}
             />
           </form>
+          Filename {mapSaveName ? mapSaveName : "no file"}
           <Button text="save" onClick={handleSave} />
         </div>
       </div>

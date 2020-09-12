@@ -47,8 +47,10 @@ function Board(props) {
 
     for (let row = 0; row < boardDimensions; row++) {
       for (let col = 0; col < boardDimensions; col++) {
-        let tileSubClass = "tileElementUnused";
-        let internalValue = ".";
+        let tileSubClass = props.isEditor
+          ? "tileElementUnused"
+          : "tileElementBlank";
+        let internalValue = props.isEditor ? "." : "";
         if (
           props.boardDetails[row] &&
           props.boardDetails[row][col] !== emptyBoardTile
