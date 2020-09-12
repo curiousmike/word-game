@@ -20,6 +20,7 @@ function App() {
   const [wordsPlaced, setWordsPlaced] = useState([]); // simple array list of words put on map
   const [mapSaveName, setMapSaveName] = useState(null);
   const [allMapData, setAllMapData] = useState([]); // the loaded / saved maps.
+
   function createEmptyBoard() {
     let emptyBoard = [boardDimensions];
     for (let row = 0; row < boardDimensions; row++) {
@@ -36,39 +37,63 @@ function App() {
     let emptyBoard = createEmptyBoard();
     setMapDetails(emptyBoard);
     loadMaps();
+    document.addEventListener("keydown", escFunction, false);
   }, []);
 
+  function escFunction(event) {
+    if (event.keyCode === 27) {
+      setSelectedWord(null);
+    }
+  }
   useEffect(() => {
     if (allMapData.length > 0) {
       setMapDetailsFromSave(0);
     }
   }, [allMapData]);
 
+  useEffect(() => {
+    console.log("words placed changed - ", wordsPlaced);
+    createBoardWithPlacedWords();
+  }, [wordsPlaced]);
+
   function loadMaps() {
     const myStorage = window.localStorage;
-    // myStorage.clear(); Resets all saved data
+    // myStorage.clear(); // Resets all saved data
     const mapData = JSON.parse(myStorage.getItem("map"));
-    console.log ("loadMaps, data = ", mapData);
     setAllMapData(mapData ? mapData : []);
   }
+
+  function createBoardWithPlacedWords(mapSaveIndex = 0) {
+    let newBoard = [boardDimensions];
+    for (let row = 0; row < boardDimensions; row++) {
+      newBoard[row] = Array(boardDimensions);
+      for (let col = 0; col < boardDimensions; col++) {
+        newBoard[row][col] = emptyBoardTile;
+      }
+    }
+    for (let i = 0; i < wordsPlaced.length; i++) {
+      const { word, direction, startCol, startRow } = wordsPlaced[i];
+      for (let j = 0; j < word.length; j++) {
+        if (direction === "horizontal") {
+          newBoard[startRow][startCol + j] = word[j];
+        } else {
+          newBoard[startRow + j][startCol] = word[j];
+        }
+      }
+    }
+
+    setMapDetails(newBoard);
+    return newBoard;
+  }
+
   /*
    */
   function setMapDetailsFromSave(mapSaveIndex) {
-    const savedBoardDimensions = allMapData[mapSaveIndex].details.length;
-    if (savedBoardDimensions !== boardDimensions) {
-      return;
-    }
-    let emptyBoard = [boardDimensions];
-    for (let row = 0; row < boardDimensions; row++) {
-      emptyBoard[row] = Array(boardDimensions);
-      for (let col = 0; col < boardDimensions; col++) {
-        const data = allMapData[mapSaveIndex].details[row][col];
-        emptyBoard[row][col] = data;
-      }
-    }
-    setMapDetails(emptyBoard);
+    createBoardWithPlacedWords(mapSaveIndex);
+    setMapSaveName(allMapData[mapSaveIndex].name);
+    setWordsPlaced(allMapData[mapSaveIndex].wordsPlaced);
     setLetters(allMapData[mapSaveIndex].letterInput);
-    setWords (allMapData[mapSaveIndex].words);
+    setWords(allMapData[mapSaveIndex].words);
   }
 
   function solve() {
@@ -98,7 +123,6 @@ function App() {
     if (!max) {
       max = 2;
     }
-    console.log("Total words found = ", words.length);
   }, [letterInput, setWords]);
 
   function handleLettersChanged(letters) {
@@ -121,37 +145,14 @@ function App() {
     setSelectedCol(col);
     setSelectedRow(row);
 
-    let emptyBoard = [boardDimensions];
-    for (let row = 0; row < boardDimensions; row++) {
-      emptyBoard[row] = Array(boardDimensions);
-      for (let col = 0; col < boardDimensions; col++) {
-        emptyBoard[row][col] = mapDetails[row][col];
-      }
-    }
-
     if (selectedWord) {
-      if (wordDirection === "vertical") {
-        for (let i = 0; i < selectedWord.length; i++) {
-          emptyBoard[startrow + i][startcol] = selectedWord[i];
-        }
-      } else {
-        for (let i = 0; i < selectedWord.length; i++) {
-          emptyBoard[startrow][startcol + i] = selectedWord[i];
-        }
-      }
-      setMapDetails(emptyBoard);
-
       const wordPlacedDetails = {
         direction: wordDirection,
         startCol: startcol,
         startRow: startrow,
         word: selectedWord,
       };
-
-      let currentWordsPlaced = wordsPlaced;
-      console.log("wordPlaced details = ", wordPlacedDetails);
-      currentWordsPlaced.push(wordPlacedDetails);
-      setWordsPlaced(currentWordsPlaced);
+      setWordsPlaced(wordsPlaced.concat(wordPlacedDetails));
       setSelectedWord(null);
     }
   }
@@ -205,7 +206,6 @@ function App() {
   function handleSave() {
     let newMapData = {};
     newMapData.name = mapSaveName;
-    newMapData.details = mapDetails;
     newMapData.wordsPlaced = wordsPlaced;
     newMapData.letterInput = letterInput;
     newMapData.words = words;
