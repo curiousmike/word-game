@@ -60,7 +60,7 @@ function App() {
 
   function loadMaps() {
     const myStorage = window.localStorage;
-    // myStorage.clear(); // Resets all saved data
+    //myStorage.clear(); // Resets all saved data
     const mapData = JSON.parse(myStorage.getItem("map"));
     setAllMapData(mapData ? mapData : []);
   }
@@ -99,7 +99,7 @@ function App() {
     createBoardWithPlacedWords(mapSaveIndex);
     setMapSaveName(allMapData[mapSaveIndex].name);
     setWordsPlaced(allMapData[mapSaveIndex].wordsPlaced);
-    setLetters(allMapData[mapSaveIndex].letterInput);
+    setLetters(allMapData[mapSaveIndex].letterInput || "default");
     setWordsFound(allMapData[mapSaveIndex].wordsFound);
   }
 
