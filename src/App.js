@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
+import { Animated } from "react-animated-css";
+
 import WordInput from "./components/wordInput/wordInput.component";
 import WordList from "./components/wordList/wordList.component";
 import Button from "./components/button/button.component";
 import Board from "./components/board/board.component";
+import FooterSolver from "./components/footerSolver/footerSolver.component";
 import { Solver } from "./solver.js";
 const boardDimensions = 10;
 const emptyBoardTile = "*";
@@ -20,6 +23,7 @@ function App() {
   const [mapSaveName, setMapSaveName] = useState(null);
   const [allMapData, setAllMapData] = useState([]); // the loaded / saved maps.
   const [isEditor, setIsEditor] = useState(true);
+  const [typedLetters, setTypedLetters] = useState([]);
   const boardRef = useRef(null); // using this to set the board to focus once word is selected.  This makes keyboard interactivity work immediately
 
   function createEmptyBoard() {
@@ -209,9 +213,50 @@ function App() {
       setWordDirection("vertical");
     }
   }
+
+  function handleWordDeposited() {
+    const wordDeposited = typedLetters.toUpperCase();
+    let bFoundOnMap = false;
+    let bFoundInBank = false;
+    for (let i = 0; i < wordsPlaced.length; i++) {
+      if (wordDeposited === wordsPlaced[i].word) {
+        bFoundOnMap = true;
+        break;
+      }
+    }
+    if (!bFoundOnMap) {
+      for (let i = 0; i < wordsFound.length; i++) {
+        if (wordDeposited === wordsFound[i]) {
+          bFoundInBank = true;
+          break;
+        }
+      }
+    }
+    if (bFoundOnMap) {
+      console.log("Found on map = ", wordDeposited);
+    }
+    if (bFoundInBank) {
+      console.log("Found in bank = ", wordDeposited);
+    }
+    if (!bFoundOnMap && !bFoundInBank) {
+      console.log("not found at all.");
+    }
+  }
   function handleGlobalKeyPress(e) {
     if (e.key === " ") {
       flipWordDirection();
+    } else if (e.key === "Enter") {
+      handleWordDeposited();
+      setTypedLetters([]);
+    } else if (e.key === "Backspace") {
+      let newString = typedLetters.substring(0, typedLetters.length - 1);
+      setTypedLetters(newString);
+    } else {
+      if (typedLetters.length < boardDimensions) {
+        const newString = typedLetters + e.key;
+        setTypedLetters(newString);
+        console.log("newstring = ", newString);
+      }
     }
   }
 
@@ -271,32 +316,55 @@ function App() {
   function onWheel() {
     flipWordDirection();
   }
+
+  function handleWordEntry(word) {
+    console.log("word entered = ", word);
+  }
+
   return (
     <div className="App">
       <div
         className="Board"
         tabIndex="0"
         onContextMenu={handleDeleteSelected}
-        onKeyPress={handleGlobalKeyPress}
+        onKeyDown={handleGlobalKeyPress}
         onFocus={boardOnFocus}
         onBlur={boardOnBlur}
         ref={boardRef}
         onWheel={onWheel}
       >
-        <Board
-          onClick={tileClick}
-          onMouseOver={mouseOver}
-          onKeyDown={handleGlobalKeyPress}
-          placingWord={placingWord}
-          hoverColumn={hoverColumn}
-          hoverRow={hoverRow}
-          wordDirection={wordDirection}
-          boardDetails={mapDetails}
-          isEditor={isEditor}
-          selectedWordDetails={selectedWordDetails}
-        />
+        <Animated
+          animationIn="bounceInLeft"
+          animationOut="fadeOut"
+          isVisible={true}
+        >
+          <Board
+            onClick={tileClick}
+            onMouseOver={mouseOver}
+            onKeyDown={handleGlobalKeyPress}
+            placingWord={placingWord}
+            hoverColumn={hoverColumn}
+            hoverRow={hoverRow}
+            wordDirection={wordDirection}
+            boardDetails={mapDetails}
+            isEditor={isEditor}
+            selectedWordDetails={selectedWordDetails}
+          />
+        </Animated>
       </div>
-      {/* <div className="letterChoicesContainer">here</div> */}
+      <div className="FooterSolver">
+        <Animated
+          animationIn="bounceInLeft"
+          animationOut="fadeOut"
+          isVisible={true}
+        >
+          <FooterSolver
+            letters={letterInput}
+            typedLetters={typedLetters}
+            onSubmit={handleWordEntry}
+          />
+        </Animated>
+      </div>
       <div className="Tools">
         <div className="wordInputContainer">
           <WordInput
