@@ -24,6 +24,7 @@ function App() {
   const [allMapData, setAllMapData] = useState([]); // the loaded / saved maps.
   const [isEditor, setIsEditor] = useState(true);
   const [typedLetters, setTypedLetters] = useState([]);
+  const [invalidLetterEntry, setInvalidLetterEntry] = useState(false);
   const boardRef = useRef(null); // using this to set the board to focus once word is selected.  This makes keyboard interactivity work immediately
 
   function createEmptyBoard() {
@@ -48,6 +49,7 @@ function App() {
   function escFunction(event) {
     if (event.keyCode === 27) {
       setPlacingWord(null);
+      setSelectedWordDetails(null);
     }
   }
   useEffect(() => {
@@ -252,12 +254,19 @@ function App() {
       let newString = typedLetters.substring(0, typedLetters.length - 1);
       setTypedLetters(newString);
     } else {
-      if (typedLetters.length < boardDimensions) {
-        const newString = typedLetters + e.key;
-        setTypedLetters(newString);
-        console.log("newstring = ", newString);
+      if (doesLetterExistInLetterInput(e.key)) {
+        if (typedLetters.length < boardDimensions) {
+          const newString = typedLetters + e.key;
+          setTypedLetters(newString);
+        }
+      } else {
+        setInvalidLetterEntry(true);
+        setTimeout(() => setInvalidLetterEntry(false), 1000);
       }
     }
+  }
+  function doesLetterExistInLetterInput(letter) {
+    return letterInput.includes(letter);
   }
 
   function handleDirectionFlip(e) {
@@ -353,17 +362,12 @@ function App() {
         </Animated>
       </div>
       <div className="FooterSolver">
-        <Animated
-          animationIn="bounceInLeft"
-          animationOut="fadeOut"
-          isVisible={true}
-        >
-          <FooterSolver
-            letters={letterInput}
-            typedLetters={typedLetters}
-            onSubmit={handleWordEntry}
-          />
-        </Animated>
+        <FooterSolver
+          letters={letterInput}
+          typedLetters={typedLetters}
+          onSubmit={handleWordEntry}
+          invalidEntry={invalidLetterEntry}
+        />
       </div>
       <div className="Tools">
         <div className="wordInputContainer">
