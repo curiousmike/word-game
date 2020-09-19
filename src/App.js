@@ -254,7 +254,8 @@ function App() {
       let newString = typedLetters.substring(0, typedLetters.length - 1);
       setTypedLetters(newString);
     } else {
-      if (doesLetterExistInLetterInput(e.key)) {
+      if (isOKToAddTypedLetter(e.key)) {
+        // ensure the letter typed exists in puzzle letters
         if (typedLetters.length < boardDimensions) {
           const newString = typedLetters + e.key;
           setTypedLetters(newString);
@@ -265,6 +266,38 @@ function App() {
       }
     }
   }
+
+  function isOKToAddTypedLetter(newLetter) {
+    const theAlphabet = "abcdefghijklmnopqrstuvwxyz";
+    // compare letters in puzzle to all letters typed.
+    let letterCounts = [];
+    let inputCounts = [];
+    //reset counts
+    for (var k = 0; k < theAlphabet.length; k++) {
+      var letter = theAlphabet[k];
+      letterCounts[letter] = 0;
+      inputCounts[letter] = 0;
+    }
+    //build counts of possible letters
+    for (var i = 0; i < letterInput.length; i++) {
+      let character = letterInput[i];
+      letterCounts[character]++;
+    }
+    if (letterCounts[letterInput] === 0) {
+      // if there are no, for example Z's, just bail
+      return false;
+    }
+    //build counts of inputted letters
+    for (var i = 0; i < typedLetters.length; i++) {
+      let character = typedLetters[i];
+      inputCounts[character]++;
+    }
+    if (inputCounts[newLetter] + 1 <= letterCounts[newLetter]) {
+      return true;
+    }
+    return false;
+  }
+
   function doesLetterExistInLetterInput(letter) {
     return letterInput.includes(letter);
   }
