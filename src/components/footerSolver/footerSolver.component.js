@@ -16,22 +16,33 @@ function FooterSolver(props) {
     return props.letters;
   }
 
-  function hasLetterBeenUsed(letter) {
+  function buildHighlightedLetters() {
+    // if you have DODDLE, and you type 'D' once, make sure only 1 D is highlighted
+    let highlighted = [];
+    for (let i = 0; i < props.letters.length; i++) {
+      highlighted[i] = false;
+    }
     for (let i = 0; i < props.typedLetters.length; i++) {
-      if (props.typedLetters[i] === letter) {
-        return true;
+      for (var j = 0; j < props.letters.length; j++) {
+        if (
+          props.letters[j] === props.typedLetters[i] &&
+          highlighted[j] === false
+        ) {
+          highlighted[j] = true;
+          break;
+        }
       }
     }
-    return false;
+    return highlighted;
   }
 
   function generateLetterElements() {
     let spans = [];
     let randomLetterSequence = generateRandomLetterSequence();
+    let itemsToHighlight = buildHighlightedLetters();
     for (let i = 0; i < randomLetterSequence.length; i++) {
-      let className = hasLetterBeenUsed(randomLetterSequence[i])
-        ? "singleLetterHighlight"
-        : "singleLetter";
+      let className =
+        itemsToHighlight[i] === true ? "singleLetterHighlight" : "singleLetter";
       spans.push(
         <span className={className} key={i}>
           {randomLetterSequence[i].toUpperCase()}
