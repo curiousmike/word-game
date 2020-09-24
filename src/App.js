@@ -25,6 +25,8 @@ function App() {
   const [isEditor, setIsEditor] = useState(true);
   const [typedLetters, setTypedLetters] = useState([]);
   const [invalidLetterEntry, setInvalidLetterEntry] = useState(false);
+  const [mapDeposit, makeMapDeposit] = useState([]);
+  const [bankDeposit, makeBankDeposit] = useState([]);
   const boardRef = useRef(null); // using this to set the board to focus once word is selected.  This makes keyboard interactivity work immediately
 
   function createEmptyBoard() {
@@ -220,27 +222,36 @@ function App() {
     const wordDeposited = typedLetters.toUpperCase();
     let bFoundOnMap = false;
     let bFoundInBank = false;
-    for (let i = 0; i < wordsPlaced.length; i++) {
-      if (wordDeposited === wordsPlaced[i].word) {
-        bFoundOnMap = true;
-        break;
-      }
-    }
-    if (!bFoundOnMap) {
-      for (let i = 0; i < wordsFound.length; i++) {
-        if (wordDeposited === wordsFound[i]) {
-          bFoundInBank = true;
+    const alreadyFoundInBank = bankDeposit.includes(wordDeposited);
+    const alreadyFoundOnMap = mapDeposit.includes(wordDeposited);
+    // verify the word entered doesn't already exist in the map or board
+    if (!alreadyFoundInBank && !alreadyFoundOnMap) {
+      for (let i = 0; i < wordsPlaced.length; i++) {
+        if (wordDeposited === wordsPlaced[i].word) {
+          bFoundOnMap = true;
           break;
+        }
+      }
+      if (!bFoundOnMap) {
+        for (let i = 0; i < wordsFound.length; i++) {
+          if (wordDeposited === wordsFound[i]) {
+            bFoundInBank = true;
+            break;
+          }
         }
       }
     }
     if (bFoundOnMap) {
       console.log("Found on map = ", wordDeposited);
-    }
-    if (bFoundInBank) {
+      makeMapDeposit((mapDeposit) => [...mapDeposit, wordDeposited]);
+    } else if (bFoundInBank) {
       console.log("Found in bank = ", wordDeposited);
-    }
-    if (!bFoundOnMap && !bFoundInBank) {
+      makeBankDeposit((bankDepsit) => [...bankDeposit, wordDeposited]);
+    } else if (alreadyFoundInBank) {
+      console.log(wordDeposited + " already found in bank");
+    } else if (alreadyFoundOnMap) {
+      console.log(wordDeposited + " already found on map");
+    } else {
       console.log("not found at all.");
     }
   }
@@ -327,6 +338,8 @@ function App() {
     setHoverRow(0);
     setHoverColumn(0);
     setSelectedWordDetails(null);
+    makeMapDeposit([]);
+    makeBankDeposit([]);
   }
 
   function setSaveMapName(e) {
