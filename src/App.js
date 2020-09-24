@@ -262,7 +262,7 @@ function App() {
         }
       } else {
         setInvalidLetterEntry(true);
-        setTimeout(() => setInvalidLetterEntry(false), 1000);
+        setTimeout(() => setInvalidLetterEntry(false), 250);
       }
     }
   }

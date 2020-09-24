@@ -66,13 +66,21 @@ function FooterSolver(props) {
 
   const letterElements = generateLetterElements();
   const typedLetters = buildTypedLetterElements();
-  console.log("invalid = ", props.invalidEntry);
   return (
     <div className="footerSolver">
-      <div className="letterElements">{letterElements}</div>
-      <Animated animationIn="bounce" isVisible={props.invalidEntry}>
-        <div>INVALID KEY</div>
-      </Animated>
+      {props.invalidEntry && (
+        <Animated
+          animationIn={"shake"}
+          animationInDuration={250}
+          visible={true}
+        >
+          <div className="letterElements">{letterElements}</div>
+        </Animated>
+      )}
+      {!props.invalidEntry && (
+        <div className="letterElements">{letterElements}</div>
+      )}
+
       <div className="typedLetters">{typedLetters}</div>
     </div>
   );
