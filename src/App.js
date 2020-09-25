@@ -30,14 +30,15 @@ function App() {
   const [wordEntered, setWordEntered] = useState(false); //user types in a word and its accepted
   const [wordDuplicate, setWordDuplicate] = useState(false); //user types in a word and its accepted
   const [wordNotFound, setWordNotFound] = useState(false);
+  const [revealedDetails, setRevealedDetails] = useState([boardDimensions]);
   const boardRef = useRef(null); // using this to set the board to focus once word is selected.  This makes keyboard interactivity work immediately
 
-  function createEmptyBoard() {
+  function createEmptyBoard(tileType) {
     let emptyBoard = [boardDimensions];
     for (let row = 0; row < boardDimensions; row++) {
       emptyBoard[row] = Array(boardDimensions);
       for (let col = 0; col < boardDimensions; col++) {
-        emptyBoard[row][col] = emptyBoardTile;
+        emptyBoard[row][col] = tileType;
       }
     }
     return emptyBoard;
@@ -45,8 +46,10 @@ function App() {
   // for useEffect, if second argument is empty array it behaves like componentDidMount *only*
   useEffect(() => {
     // code to run on component mount
-    let emptyBoard = createEmptyBoard();
+    let emptyBoard = createEmptyBoard(emptyBoardTile);
     setMapDetails(emptyBoard);
+    let emptyReveal = createEmptyBoard(false);
+    setRevealedDetails(emptyReveal);
     loadMaps();
     document.addEventListener("keydown", escFunction, false);
   }, []);
@@ -267,8 +270,32 @@ function App() {
   }
   function finalizeMapDeposit(wordDeposited) {
     makeMapDeposit((mapDeposit) => [...mapDeposit, wordDeposited]);
+    revealMapDeposit(wordDeposited);
     setWordEntered(false);
     setTypedLetters([]);
+  }
+
+  function revealMapDeposit(wordDeposited) {
+    for (let i = 0; i < wordsPlaced.length; i++) {
+      const { word, direction, startCol, startRow } = wordsPlaced[i];
+      if (word === wordDeposited) {
+        const copyOfRevealedDetails = revealedDetails;
+        if (direction === "vertical") {
+          for (let j = 0; j < wordDeposited.length; j++) {
+            copyOfRevealedDetails[startRow + j][startCol] = true;
+          }
+          setRevealedDetails(copyOfRevealedDetails);
+        }
+        if (direction === "horizontal") {
+          for (let j = 0; j < wordDeposited.length; j++) {
+            copyOfRevealedDetails[startRow][startCol + j] = true;
+          }
+          setRevealedDetails(copyOfRevealedDetails);
+        }
+
+        break;
+      }
+    }
   }
 
   function finalizeBankDeposit(wordDeposited) {
@@ -354,6 +381,8 @@ function App() {
   function handleReset() {
     let emptyBoard = createEmptyBoard();
     setMapDetails(emptyBoard);
+    let emptyReveal = createEmptyBoard();
+    setRevealedDetails(emptyReveal);
     setWordsFound([]);
     setWordsPlaced([]);
     setPlacingWord(null);
@@ -424,6 +453,7 @@ function App() {
             hoverRow={hoverRow}
             wordDirection={wordDirection}
             boardDetails={mapDetails}
+            revealedDetails={revealedDetails}
             isEditor={isEditor}
             selectedWordDetails={selectedWordDetails}
           />

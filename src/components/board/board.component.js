@@ -21,6 +21,7 @@ function Board(props) {
     let endCol = null;
     let startRow = null;
     let endRow = null;
+    // If placing word, do the stuff for that here
     if (word) {
       const wordLen = word.length;
       if (props.wordDirection === "horizontal") {
@@ -46,6 +47,7 @@ function Board(props) {
       }
     }
 
+    // Create normal board
     for (let row = 0; row < boardDimensions; row++) {
       for (let col = 0; col < boardDimensions; col++) {
         let tileSubClass = props.isEditor
@@ -56,7 +58,9 @@ function Board(props) {
           props.boardDetails[row] &&
           props.boardDetails[row][col] !== emptyBoardTile
         ) {
-          internalValue = props.boardDetails[row][col];
+          if (props.revealedDetails[row][col] || props.isEditor) {
+            internalValue = props.boardDetails[row][col];
+          }
           tileSubClass = "tileElementUsed";
           if (
             selectedWord &&

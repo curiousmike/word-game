@@ -19,6 +19,8 @@
   align-content: center;
   font-size: 3em;
   user-select: none;
+  width: 64px;
+  height: 64px;
 }
 .tileElementUnused {
   background-color: rgba(200, 200, 200, 0.2);
