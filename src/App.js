@@ -27,6 +27,9 @@ function App() {
   const [invalidLetterEntry, setInvalidLetterEntry] = useState(false);
   const [mapDeposit, makeMapDeposit] = useState([]);
   const [bankDeposit, makeBankDeposit] = useState([]);
+  const [wordEntered, setWordEntered] = useState(false); //user types in a word and its accepted
+  const [wordDuplicate, setWordDuplicate] = useState(false); //user types in a word and its accepted
+  const [wordNotFound, setWordNotFound] = useState(false);
   const boardRef = useRef(null); // using this to set the board to focus once word is selected.  This makes keyboard interactivity work immediately
 
   function createEmptyBoard() {
@@ -242,25 +245,53 @@ function App() {
       }
     }
     if (bFoundOnMap) {
-      console.log("Found on map = ", wordDeposited);
-      makeMapDeposit((mapDeposit) => [...mapDeposit, wordDeposited]);
+      setWordEntered(true);
+      setTimeout(() => finalizeMapDeposit(wordDeposited), 250);
     } else if (bFoundInBank) {
+      setWordEntered(true);
       console.log("Found in bank = ", wordDeposited);
-      makeBankDeposit((bankDepsit) => [...bankDeposit, wordDeposited]);
+      setTimeout(() => finalizeBankDeposit(wordDeposited), 250);
     } else if (alreadyFoundInBank) {
+      setWordDuplicate(true);
+      setTimeout(() => finalizeWordDuplicate(), 250);
       console.log(wordDeposited + " already found in bank");
     } else if (alreadyFoundOnMap) {
+      setWordDuplicate(true);
+      setTimeout(() => finalizeWordDuplicate(), 250);
       console.log(wordDeposited + " already found on map");
     } else {
+      setWordNotFound(true);
+      setTimeout(() => finalizeWordNotFound(), 250);
       console.log("not found at all.");
     }
   }
+  function finalizeMapDeposit(wordDeposited) {
+    makeMapDeposit((mapDeposit) => [...mapDeposit, wordDeposited]);
+    setWordEntered(false);
+    setTypedLetters([]);
+  }
+
+  function finalizeBankDeposit(wordDeposited) {
+    makeBankDeposit((bankDeposit) => [...bankDeposit, wordDeposited]);
+    setWordEntered(false);
+    setTypedLetters([]);
+  }
+
+  function finalizeWordNotFound() {
+    setTypedLetters([]);
+    setWordNotFound(false);
+  }
+
+  function finalizeWordDuplicate() {
+    setTypedLetters([]);
+    setWordDuplicate(false);
+  }
+
   function handleGlobalKeyPress(e) {
     if (e.key === " ") {
       flipWordDirection();
     } else if (e.key === "Enter") {
       handleWordDeposited();
-      setTypedLetters([]);
     } else if (e.key === "Backspace") {
       let newString = typedLetters.substring(0, typedLetters.length - 1);
       setTypedLetters(newString);
@@ -290,7 +321,7 @@ function App() {
       inputCounts[letter] = 0;
     }
     //build counts of possible letters
-    for (var i = 0; i < letterInput.length; i++) {
+    for (let i = 0; i < letterInput.length; i++) {
       let character = letterInput[i];
       letterCounts[character]++;
     }
@@ -299,7 +330,7 @@ function App() {
       return false;
     }
     //build counts of inputted letters
-    for (var i = 0; i < typedLetters.length; i++) {
+    for (let i = 0; i < typedLetters.length; i++) {
       let character = typedLetters[i];
       inputCounts[character]++;
     }
@@ -307,15 +338,6 @@ function App() {
       return true;
     }
     return false;
-  }
-
-  function doesLetterExistInLetterInput(letter) {
-    return letterInput.includes(letter);
-  }
-
-  function handleDirectionFlip(e) {
-    e.preventDefault();
-    flipWordDirection();
   }
 
   function handleDeleteSelected(e) {
@@ -411,6 +433,9 @@ function App() {
         <FooterSolver
           letters={letterInput}
           typedLetters={typedLetters}
+          wordEntered={wordEntered}
+          wordDuplicate={wordDuplicate}
+          wordNotFound={wordNotFound}
           onSubmit={handleWordEntry}
           invalidEntry={invalidLetterEntry}
         />
@@ -440,6 +465,8 @@ function App() {
           text={isEditor ? "Preview Game OFF" : "Preview Game ON"}
           onClick={handlePreview}
         />
+        <WordList words={mapDeposit} onSelect={() => {}} />
+        <WordList words={bankDeposit} onSelect={() => {}} />
       </div>
     </div>
   );

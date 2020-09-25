@@ -4,14 +4,6 @@ import { Animated } from "react-animated-css";
 import "./footerSolver.component.css";
 
 function FooterSolver(props) {
-  function handleChange(e) {
-    if (e.key === "Enter") {
-      props.onSubmit();
-    } else {
-      props.onChange(e.target.value);
-    }
-  }
-
   function generateRandomLetterSequence() {
     return props.letters;
   }
@@ -66,6 +58,20 @@ function FooterSolver(props) {
 
   const letterElements = generateLetterElements();
   const typedLetters = buildTypedLetterElements();
+  let wordEnteredAnimation = "";
+  if (props.wordEntered) {
+    wordEnteredAnimation = "zoomOut";
+  }
+  if (props.wordDuplicate) {
+    wordEnteredAnimation = "shake";
+  }
+  if (props.wordNotFound) {
+    wordEnteredAnimation = "tada";
+  }
+  let playWordEnteredAnim = false;
+  if (props.wordEntered || props.wordDuplicate || props.wordNotFound) {
+    playWordEnteredAnim = true;
+  }
   return (
     <div className="footerSolver">
       {props.invalidEntry && (
@@ -80,8 +86,18 @@ function FooterSolver(props) {
       {!props.invalidEntry && (
         <div className="letterElements">{letterElements}</div>
       )}
-
-      <div className="typedLetters">{typedLetters}</div>
+      {playWordEnteredAnim && (
+        <Animated
+          animationIn={wordEnteredAnimation}
+          animationInDuration={250}
+          visible={true}
+        >
+          <div className="typedLetters">{typedLetters}</div>
+        </Animated>
+      )}
+      {!playWordEnteredAnim && (
+        <div className="typedLetters">{typedLetters}</div>
+      )}
     </div>
   );
 }
