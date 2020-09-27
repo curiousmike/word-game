@@ -58,10 +58,17 @@ function Board(props) {
           props.boardDetails[row] &&
           props.boardDetails[row][col] !== emptyBoardTile
         ) {
-          if (props.revealedDetails[row][col] || props.isEditor) {
+          if (props.revealedDetails[row][col]?.revealed || props.isEditor) {
             internalValue = props.boardDetails[row][col];
           }
           tileSubClass = "tileElementUsed";
+          if (
+            props.revealedDetails[row][col]?.revealed &&
+            props.revealedDetails[row][col].revealed &&
+            props.revealedDetails[row][col]?.revealedType === "cheat"
+          ) {
+            tileSubClass = "tileElementUsedViaCheat";
+          }
           if (
             selectedWord &&
             row >= selectedWord.startRow &&

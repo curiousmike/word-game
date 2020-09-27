@@ -48,7 +48,10 @@ function App() {
     // code to run on component mount
     let emptyBoard = createEmptyBoard(emptyBoardTile);
     setMapDetails(emptyBoard);
-    let emptyReveal = createEmptyBoard(false);
+    let emptyReveal = createEmptyBoard({
+      revealed: false,
+      revealedType: "word",
+    });
     setRevealedDetails(emptyReveal);
     loadMaps();
     document.addEventListener("keydown", escFunction, false);
@@ -153,7 +156,7 @@ function App() {
           startRow: wordDetails.startRow,
           endRow: wordDetails.startRow,
         };
-        setSelectedWordDetails(selectedWordDetails);
+        // setSelectedWordDetails(selectedWordDetails);
         return true;
       }
       if (
@@ -170,12 +173,31 @@ function App() {
           startRow: wordDetails.startRow,
           endRow: wordDetails.startRow + wordLen,
         };
-        setSelectedWordDetails(selectedWordDetails);
+        // setSelectedWordDetails(selectedWordDetails);
         return true;
       }
     }
     setSelectedWordDetails(null);
     return false;
+  }
+
+  //when using a cheat tile, did you finish a word?
+  function didJustRevealNewWord() {
+    return false;
+  }
+
+  function handleCheatTileReveal(row, col) {
+    const copyOfRevealedDetails = [...revealedDetails];
+    if (copyOfRevealedDetails[row][col].revealed === false) {
+      copyOfRevealedDetails[row][col] = {
+        revealed: true,
+        revealedType: "cheat",
+      };
+      setRevealedDetails(copyOfRevealedDetails);
+      if (didJustRevealNewWord()) {
+        console.log("reveal new word");
+      }
+    }
   }
 
   function tileClick(e) {
@@ -197,7 +219,7 @@ function App() {
       setPlacingWord(null);
     } else {
       if (doesWordExistHere(row, col)) {
-        console.log("yes");
+        handleCheatTileReveal(row, col);
       } else {
         console.log("no");
       }
@@ -208,8 +230,10 @@ function App() {
     const value = e.target.getAttribute("id").split(",");
     const row = parseInt(value[0]);
     const col = parseInt(value[1]);
-    setHoverColumn(col);
-    setHoverRow(row);
+    if (col !== hoverColumn || row !== hoverRow) {
+      setHoverColumn(col);
+      setHoverRow(row);
+    }
   }
 
   function onSelectWord(word) {
@@ -279,18 +303,32 @@ function App() {
     for (let i = 0; i < wordsPlaced.length; i++) {
       const { word, direction, startCol, startRow } = wordsPlaced[i];
       if (word === wordDeposited) {
-        const copyOfRevealedDetails = revealedDetails;
+        const copyOfRevealedDetails = [...revealedDetails];
         if (direction === "vertical") {
           for (let j = 0; j < wordDeposited.length; j++) {
-            copyOfRevealedDetails[startRow + j][startCol] = true;
+            if (
+              copyOfRevealedDetails[startRow + j][startCol].revealed === false
+            ) {
+              copyOfRevealedDetails[startRow + j][startCol] = {
+                revealed: true,
+                revealedType: "word",
+              };
+              setRevealedDetails(copyOfRevealedDetails);
+            }
           }
-          setRevealedDetails(copyOfRevealedDetails);
         }
         if (direction === "horizontal") {
           for (let j = 0; j < wordDeposited.length; j++) {
-            copyOfRevealedDetails[startRow][startCol + j] = true;
+            if (
+              copyOfRevealedDetails[startRow][startCol + j].revealed === false
+            ) {
+              copyOfRevealedDetails[startRow][startCol + j] = {
+                revealed: true,
+                revealedType: "word",
+              };
+              setRevealedDetails(copyOfRevealedDetails);
+            }
           }
-          setRevealedDetails(copyOfRevealedDetails);
         }
 
         break;

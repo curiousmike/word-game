@@ -19,7 +19,7 @@
 }
 .singleLetterHighlight {
   background: rgb(100, 100, 255);
-  color: white;
+  color: lightslategrey;
   margin: 16px;
   padding: 0px 8px 8px 8px;
   font-size: 2em;
