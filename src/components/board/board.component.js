@@ -16,15 +16,15 @@ function Board(props) {
     let divs = [];
     let count = 0;
 
-    const word = props.placingWord;
+    const placingWord = props.placingWord;
     const selectedWord = props.selectedWordDetails;
     let startCol = null;
     let endCol = null;
     let startRow = null;
     let endRow = null;
     // If placing word, do the stuff for that here
-    if (word) {
-      const wordLen = word.length;
+    if (placingWord) {
+      const wordLen = placingWord.length;
       if (props.wordDirection === "horizontal") {
         startCol = Math.floor(props.hoverColumn - wordLen / 2);
         if (startCol < 0) {
@@ -97,7 +97,7 @@ function Board(props) {
           col < endCol
         ) {
           const wordIndex = col - startCol;
-          internalValue = word[wordIndex];
+          internalValue = placingWord[wordIndex];
           tileSubClass = "tileElementPlacing";
         } else if (
           startRow != null &&
@@ -106,12 +106,12 @@ function Board(props) {
           row < endRow
         ) {
           const wordIndex = row - startRow;
-          internalValue = word[wordIndex];
+          internalValue = placingWord[wordIndex];
           tileSubClass = "tileElementPlacing";
         }
 
         divs.push(
-          <div>
+          <div id={row + "," + col}>
             {animateMe && (
               <Animated
                 animationIn={animateName}

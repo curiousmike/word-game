@@ -31,6 +31,8 @@ function App() {
   const [wordDuplicate, setWordDuplicate] = useState(false); //user types in a word and its accepted
   const [wordNotFound, setWordNotFound] = useState(false);
   const [revealedDetails, setRevealedDetails] = useState([boardDimensions]);
+  const [gameOver, setGameOver] = useState(false);
+
   const boardRef = useRef(null); // using this to set the board to focus once word is selected.  This makes keyboard interactivity work immediately
 
   function createEmptyBoard(tileType) {
@@ -74,6 +76,10 @@ function App() {
     console.log("words placed changed - ", wordsPlaced);
     createBoardWithPlacedWords();
   }, [wordsPlaced]);
+
+  useEffect(() => {
+    checkForEndGame();
+  }, [mapDeposit, bankDeposit]);
 
   function loadMaps() {
     const myStorage = window.localStorage;
@@ -346,6 +352,14 @@ function App() {
     setTypedLetters([]);
   }
 
+  function checkForEndGame() {
+    if (mapDeposit.length > 0 && mapDeposit.length === wordsPlaced.length) {
+      setGameOver(true);
+      return true;
+    }
+    return false;
+  }
+
   function finalizeWordNotFound() {
     setTypedLetters([]);
     setWordNotFound(false);
@@ -421,6 +435,7 @@ function App() {
   }
 
   function handleReset() {
+    setGameOver(false);
     let emptyBoard = createEmptyBoard();
     setMapDetails(emptyBoard);
     let emptyReveal = createEmptyBoard();
@@ -481,25 +496,50 @@ function App() {
         ref={boardRef}
         onWheel={onWheel}
       >
-        <Animated
-          animationIn="bounceInLeft"
-          animationOut="fadeOut"
-          isVisible={true}
-        >
-          <Board
-            onClick={tileClick}
-            onMouseOver={mouseOver}
-            onKeyDown={handleGlobalKeyPress}
-            placingWord={placingWord}
-            hoverColumn={hoverColumn}
-            hoverRow={hoverRow}
-            wordDirection={wordDirection}
-            boardDetails={mapDetails}
-            revealedDetails={revealedDetails}
-            isEditor={isEditor}
-            selectedWordDetails={selectedWordDetails}
-          />
-        </Animated>
+        {gameOver === false && (
+          <Animated
+            animationIn="bounceInLeft"
+            animationOut="fadeOut"
+            isVisible={true}
+          >
+            <Board
+              onClick={tileClick}
+              onMouseOver={mouseOver}
+              onKeyDown={handleGlobalKeyPress}
+              placingWord={placingWord}
+              hoverColumn={hoverColumn}
+              hoverRow={hoverRow}
+              wordDirection={wordDirection}
+              boardDetails={mapDetails}
+              revealedDetails={revealedDetails}
+              isEditor={isEditor}
+              selectedWordDetails={selectedWordDetails}
+              gameOver={gameOver}
+            />
+          </Animated>
+        )}
+        {gameOver === true && (
+          <Animated
+            animationIn="bounceOutLeft"
+            animationOut="fadeOut"
+            isVisible={true}
+          >
+            <Board
+              onClick={tileClick}
+              onMouseOver={mouseOver}
+              onKeyDown={handleGlobalKeyPress}
+              placingWord={placingWord}
+              hoverColumn={hoverColumn}
+              hoverRow={hoverRow}
+              wordDirection={wordDirection}
+              boardDetails={mapDetails}
+              revealedDetails={revealedDetails}
+              isEditor={isEditor}
+              selectedWordDetails={selectedWordDetails}
+              gameOver={gameOver}
+            />
+          </Animated>
+        )}
       </div>
       <div className="FooterSolver">
         <FooterSolver
