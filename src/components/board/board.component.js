@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import "./board.component.css";
+import { Animated } from "react-animated-css";
 
 const boardDimensions = 10;
 const emptyBoardTile = "*";
@@ -53,6 +54,15 @@ function Board(props) {
         let tileSubClass = props.isEditor
           ? "tileElementUnused"
           : "tileElementBlank";
+        const animateMe =
+          props.revealedDetails[row] && props.revealedDetails[row][col]
+            ? props.revealedDetails[row][col].animateMe
+            : false;
+        const animateName = animateMe
+          ? props.revealedDetails[row][col].revealedType === "word"
+            ? "wobble"
+            : "tada"
+          : "";
         let internalValue = props.isEditor ? "." : "";
         if (
           props.boardDetails[row] &&
@@ -101,16 +111,39 @@ function Board(props) {
         }
 
         divs.push(
-          <div
-            className={"tileElement " + tileSubClass}
-            key={col + row * count * boardDimensions}
-            id={row + "," + col}
-            onClick={props.onClick}
-            onMouseOver={props.onMouseOver}
-            startcol={startCol}
-            startrow={startRow}
-          >
-            {internalValue}
+          <div>
+            {animateMe && (
+              <Animated
+                animationIn={animateName}
+                animationInDuration={500}
+                visible={true}
+              >
+                <div
+                  className={"tileElement " + tileSubClass}
+                  key={col + row * count * boardDimensions}
+                  id={row + "," + col}
+                  onClick={props.onClick}
+                  onMouseOver={props.onMouseOver}
+                  startcol={startCol}
+                  startrow={startRow}
+                >
+                  {internalValue}
+                </div>
+              </Animated>
+            )}
+            {!animateMe && (
+              <div
+                className={"tileElement " + tileSubClass}
+                key={col + row * count * boardDimensions}
+                id={row + "," + col}
+                onClick={props.onClick}
+                onMouseOver={props.onMouseOver}
+                startcol={startCol}
+                startrow={startRow}
+              >
+                {internalValue}
+              </div>
+            )}
           </div>
         );
       }

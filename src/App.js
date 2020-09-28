@@ -51,6 +51,7 @@ function App() {
     let emptyReveal = createEmptyBoard({
       revealed: false,
       revealedType: "word",
+      animateMe: false,
     });
     setRevealedDetails(emptyReveal);
     loadMaps();
@@ -192,6 +193,7 @@ function App() {
       copyOfRevealedDetails[row][col] = {
         revealed: true,
         revealedType: "cheat",
+        animateMe: true,
       };
       setRevealedDetails(copyOfRevealedDetails);
       if (didJustRevealNewWord()) {
@@ -312,6 +314,7 @@ function App() {
               copyOfRevealedDetails[startRow + j][startCol] = {
                 revealed: true,
                 revealedType: "word",
+                animateMe: true,
               };
               setRevealedDetails(copyOfRevealedDetails);
             }
@@ -325,6 +328,7 @@ function App() {
               copyOfRevealedDetails[startRow][startCol + j] = {
                 revealed: true,
                 revealedType: "word",
+                animateMe: true,
               };
               setRevealedDetails(copyOfRevealedDetails);
             }
