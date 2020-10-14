@@ -9,12 +9,6 @@ import Board from "./components/board/board.component";
 import FooterSolver from "./components/footerSolver/footerSolver.component";
 import { Solver } from "./solver.js";
 const boardDimensions = 10;
-const emptyBoardTile = {
-  value: "*",
-  revealed: false,
-  revealedType: "word",
-  animateMe: false,
-}
 function App() {
   const [wordsFound, setWordsFound] = useState([]); // when entering series of letters (abcdef), the resultant words found from those letters
   const [letterInput, setLetters] = useState("alphabet"); // the series of letters entered to form possible words
@@ -38,12 +32,18 @@ function App() {
 
   const boardRef = useRef(null); // using this to set the board to focus once word is selected.  This makes keyboard interactivity work immediately
 
-  function createEmptyBoard(tileType) {
-    let emptyBoard = [boardDimensions];
+  function createEmptyBoard() {
+    const emptyBoardTile = {
+      value: "*",
+      revealed: false,
+      revealedType: "word",
+      animateMe: false,
+    }
+        let emptyBoard = [boardDimensions];
     for (let row = 0; row < boardDimensions; row++) {
       emptyBoard[row] = Array(boardDimensions);
       for (let col = 0; col < boardDimensions; col++) {
-        emptyBoard[row][col] = tileType;
+        emptyBoard[row][col] = emptyBoardTile;
       }
     }
     return emptyBoard;
@@ -51,13 +51,8 @@ function App() {
   // for useEffect, if second argument is empty array it behaves like componentDidMount *only*
   useEffect(() => {
     // code to run on component mount
-    let emptyBoard = createEmptyBoard(emptyBoardTile);
+    let emptyBoard = createEmptyBoard();
     setMapDetails(emptyBoard);
-    let emptyReveal = createEmptyBoard({
-      revealed: false,
-      revealedType: "word",
-      animateMe: false,
-    });
     loadMaps();
     document.addEventListener("keydown", escFunction, false);
   }, []);
@@ -94,13 +89,7 @@ function App() {
   }, [placingWord]);
 
   function createBoardWithPlacedWords(mapSaveIndex = 0) {
-    let newBoard = [boardDimensions];
-    for (let row = 0; row < boardDimensions; row++) {
-      newBoard[row] = Array(boardDimensions);
-      for (let col = 0; col < boardDimensions; col++) {
-        newBoard[row][col] = emptyBoardTile;
-      }
-    }
+    let newBoard = createEmptyBoard();
     for (let i = 0; i < wordsPlaced.length; i++) {
       const { word, direction, startCol, startRow } = wordsPlaced[i];
       for (let j = 0; j < word.length; j++) {
