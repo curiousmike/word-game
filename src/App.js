@@ -9,28 +9,31 @@ import Board from "./components/board/board.component";
 import FooterSolver from "./components/footerSolver/footerSolver.component";
 import { Solver } from "./solver.js";
 const boardDimensions = 10;
-const emptyBoardTile = "*";
+const emptyBoardTile = {
+  value: "*",
+  revealed: false,
+  revealedType: "word",
+  animateMe: false,
+}
 function App() {
-  const [wordsFound, setWordsFound] = useState([]);
-  const [letterInput, setLetters] = useState("alphabet");
-  const [selectedWordDetails, setSelectedWordDetails] = useState(null);
-  const [placingWord, setPlacingWord] = useState(null);
-  const [hoverRow, setHoverRow] = useState(0);
-  const [hoverColumn, setHoverColumn] = useState(0);
-  const [wordDirection, setWordDirection] = useState("horizontal");
-  const [mapDetails, setMapDetails] = useState([boardDimensions]);
+  const [wordsFound, setWordsFound] = useState([]); // when entering series of letters (abcdef), the resultant words found from those letters
+  const [letterInput, setLetters] = useState("alphabet"); // the series of letters entered to form possible words
+  const [placingWord, setPlacingWord] = useState(null); // MAP EDITOR: The word you're placing on map
+  const [hoverRow, setHoverRow] = useState(0); // The row your mouse is over
+  const [hoverColumn, setHoverColumn] = useState(0); // The column your mouse is over
+  const [wordDirection, setWordDirection] = useState("horizontal"); // MAP EDITOR: The direction VERT/HORIZ of placing word
+  const [mapDetails, setMapDetails] = useState([boardDimensions]); // The main map, rows/columns and the letter on that place
   const [wordsPlaced, setWordsPlaced] = useState([]); // simple array list of words put on map
-  const [mapSaveName, setMapSaveName] = useState(null);
+  const [mapSaveName, setMapSaveName] = useState(null); // MAP EDITOR: Name of map save
   const [allMapData, setAllMapData] = useState([]); // the loaded / saved maps.
-  const [isEditor, setIsEditor] = useState(true);
-  const [typedLetters, setTypedLetters] = useState([]);
-  const [invalidLetterEntry, setInvalidLetterEntry] = useState(false);
-  const [mapDeposit, makeMapDeposit] = useState([]);
-  const [bankDeposit, makeBankDeposit] = useState([]);
+  const [isEditor, setIsEditor] = useState(true); // MAP EDITOR: Is map editor mode
+  const [typedLetters, setTypedLetters] = useState([]); // As user types letters, this holds them
+  const [invalidLetterEntry, setInvalidLetterEntry] = useState(false); // Boolean if you typed a letter not in list of possible letters
+  const [mapDeposit, makeMapDeposit] = useState([]); // You've successfully added new word into map
+  const [bankDeposit, makeBankDeposit] = useState([]); // You've successfully added new word into bank
   const [wordEntered, setWordEntered] = useState(false); //user types in a word and its accepted
   const [wordDuplicate, setWordDuplicate] = useState(false); //user types in a word and its accepted
-  const [wordNotFound, setWordNotFound] = useState(false);
-  const [revealedDetails, setRevealedDetails] = useState([boardDimensions]);
+  const [wordNotFound, setWordNotFound] = useState(false); // user types in word not found
   const [gameOver, setGameOver] = useState(false);
 
   const boardRef = useRef(null); // using this to set the board to focus once word is selected.  This makes keyboard interactivity work immediately
@@ -55,7 +58,6 @@ function App() {
       revealedType: "word",
       animateMe: false,
     });
-    setRevealedDetails(emptyReveal);
     loadMaps();
     document.addEventListener("keydown", escFunction, false);
   }, []);
@@ -63,7 +65,6 @@ function App() {
   function escFunction(event) {
     if (event.keyCode === 27) {
       setPlacingWord(null);
-      setSelectedWordDetails(null);
     }
   }
   useEffect(() => {
@@ -73,7 +74,6 @@ function App() {
   }, [allMapData]);
 
   useEffect(() => {
-    console.log("words placed changed - ", wordsPlaced);
     createBoardWithPlacedWords();
   }, [wordsPlaced]);
 
@@ -83,7 +83,7 @@ function App() {
 
   function loadMaps() {
     const myStorage = window.localStorage;
-    //myStorage.clear(); // Resets all saved data
+    // myStorage.clear(); // Resets all saved data
     const mapData = JSON.parse(myStorage.getItem("map"));
     setAllMapData(mapData ? mapData : []);
   }
@@ -104,10 +104,16 @@ function App() {
     for (let i = 0; i < wordsPlaced.length; i++) {
       const { word, direction, startCol, startRow } = wordsPlaced[i];
       for (let j = 0; j < word.length; j++) {
-        if (direction === "horizontal") {
-          newBoard[startRow][startCol + j] = word[j];
+        const value = {
+          value: word[j],
+          revealed: false,
+          revealedType: "word",
+          animateMe: false,
+        }
+      if (direction === "horizontal") {
+          newBoard[startRow][startCol + j] = value;
         } else {
-          newBoard[startRow + j][startCol] = word[j];
+          newBoard[startRow + j][startCol] = value;
         }
       }
     }
@@ -155,7 +161,7 @@ function App() {
         col < wordDetails.startCol + wordLen &&
         wordDetails.startRow === row
       ) {
-        const selectedWordDetails = {
+        const wordInfo = {
           index: i,
           word: wordDetails.word,
           startCol: wordDetails.startCol,
@@ -163,8 +169,7 @@ function App() {
           startRow: wordDetails.startRow,
           endRow: wordDetails.startRow,
         };
-        // setSelectedWordDetails(selectedWordDetails);
-        return true;
+        return wordInfo;
       }
       if (
         wordDetails.direction === "vertical" &&
@@ -172,7 +177,7 @@ function App() {
         row < wordDetails.startRow + wordLen &&
         wordDetails.startCol === col
       ) {
-        const selectedWordDetails = {
+        const wordInfo = {
           index: i,
           word: wordDetails.word,
           startCol: wordDetails.startCol,
@@ -180,11 +185,9 @@ function App() {
           startRow: wordDetails.startRow,
           endRow: wordDetails.startRow + wordLen,
         };
-        // setSelectedWordDetails(selectedWordDetails);
-        return true;
+        return wordInfo;
       }
     }
-    setSelectedWordDetails(null);
     return false;
   }
 
@@ -194,14 +197,15 @@ function App() {
   }
 
   function handleCheatTileReveal(row, col) {
-    const copyOfRevealedDetails = [...revealedDetails];
-    if (copyOfRevealedDetails[row][col].revealed === false) {
-      copyOfRevealedDetails[row][col] = {
+    const copyOfMapDetails = [...mapDetails];
+    if (copyOfMapDetails[row][col].revealed === false) {
+      copyOfMapDetails[row][col] = {
         revealed: true,
         revealedType: "cheat",
         animateMe: true,
+        value: mapDetails[row][col].value
       };
-      setRevealedDetails(copyOfRevealedDetails);
+      setMapDetails(copyOfMapDetails);
       if (didJustRevealNewWord()) {
         console.log("reveal new word");
       }
@@ -311,32 +315,35 @@ function App() {
     for (let i = 0; i < wordsPlaced.length; i++) {
       const { word, direction, startCol, startRow } = wordsPlaced[i];
       if (word === wordDeposited) {
-        const copyOfRevealedDetails = [...revealedDetails];
+        const copyOfMapDetails = [...mapDetails];
         if (direction === "vertical") {
           for (let j = 0; j < wordDeposited.length; j++) {
             if (
-              copyOfRevealedDetails[startRow + j][startCol].revealed === false
+              copyOfMapDetails[startRow + j][startCol].revealed === false
             ) {
-              copyOfRevealedDetails[startRow + j][startCol] = {
+              copyOfMapDetails[startRow + j][startCol] = {
                 revealed: true,
                 revealedType: "word",
                 animateMe: true,
+                value: mapDetails[startRow + j][startCol].value,
               };
-              setRevealedDetails(copyOfRevealedDetails);
+              setMapDetails(copyOfMapDetails);
             }
           }
         }
         if (direction === "horizontal") {
           for (let j = 0; j < wordDeposited.length; j++) {
             if (
-              copyOfRevealedDetails[startRow][startCol + j].revealed === false
+              copyOfMapDetails[startRow][startCol + j].revealed === false
             ) {
-              copyOfRevealedDetails[startRow][startCol + j] = {
+              copyOfMapDetails[startRow][startCol + j] = {
                 revealed: true,
                 revealedType: "word",
                 animateMe: true,
+                value: mapDetails[startRow][startCol + j].value,
+
               };
-              setRevealedDetails(copyOfRevealedDetails);
+              setMapDetails(copyOfMapDetails);
             }
           }
         }
@@ -425,12 +432,16 @@ function App() {
 
   function handleDeleteSelected(e) {
     e.preventDefault();
-    if (selectedWordDetails) {
+    const value = e.target.getAttribute("id").split(",");
+    const row = parseInt(value[0]);
+    const col = parseInt(value[1]);
+
+    const result = doesWordExistHere (row, col);
+    if (result && result.word) {
       const updateWordsPlaced = wordsPlaced.filter(
-        (word) => word.word !== selectedWordDetails.word
+        (word) => word.word !== result.word
       );
       setWordsPlaced(updateWordsPlaced);
-      setSelectedWordDetails(null);
     }
   }
 
@@ -438,14 +449,11 @@ function App() {
     setGameOver(false);
     let emptyBoard = createEmptyBoard();
     setMapDetails(emptyBoard);
-    let emptyReveal = createEmptyBoard();
-    setRevealedDetails(emptyReveal);
     setWordsFound([]);
     setWordsPlaced([]);
     setPlacingWord(null);
     setHoverRow(0);
     setHoverColumn(0);
-    setSelectedWordDetails(null);
     makeMapDeposit([]);
     makeBankDeposit([]);
   }
@@ -511,9 +519,7 @@ function App() {
               hoverRow={hoverRow}
               wordDirection={wordDirection}
               boardDetails={mapDetails}
-              revealedDetails={revealedDetails}
               isEditor={isEditor}
-              selectedWordDetails={selectedWordDetails}
               gameOver={gameOver}
             />
           </Animated>
@@ -533,9 +539,7 @@ function App() {
               hoverRow={hoverRow}
               wordDirection={wordDirection}
               boardDetails={mapDetails}
-              revealedDetails={revealedDetails}
               isEditor={isEditor}
-              selectedWordDetails={selectedWordDetails}
               gameOver={gameOver}
             />
           </Animated>

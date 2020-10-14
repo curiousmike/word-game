@@ -55,27 +55,28 @@ function Board(props) {
           ? "tileElementUnused"
           : "tileElementBlank";
         const animateMe =
-          props.revealedDetails[row] && props.revealedDetails[row][col]
-            ? props.revealedDetails[row][col].animateMe
+          props.boardDetails[row] && props.boardDetails[row][col]
+            ? props.boardDetails[row][col].animateMe
             : false;
         const animateName = animateMe
-          ? props.revealedDetails[row][col].revealedType === "word"
+          ? props.boardDetails[row][col].revealedType === "word"
             ? "wobble"
             : "tada"
           : "";
         let internalValue = props.isEditor ? "." : "";
         if (
           props.boardDetails[row] &&
-          props.boardDetails[row][col] !== emptyBoardTile
+          props.boardDetails[row][col] &&
+          props.boardDetails[row][col].value !== emptyBoardTile
         ) {
-          if (props.revealedDetails[row][col]?.revealed || props.isEditor) {
-            internalValue = props.boardDetails[row][col];
+          if (props.boardDetails[row][col]?.revealed || props.isEditor) {
+            internalValue = props.boardDetails[row][col].value;
           }
           tileSubClass = "tileElementUsed";
           if (
-            props.revealedDetails[row][col]?.revealed &&
-            props.revealedDetails[row][col].revealed &&
-            props.revealedDetails[row][col]?.revealedType === "cheat"
+            props.boardDetails[row][col]?.revealed &&
+            props.boardDetails[row][col].revealed &&
+            props.boardDetails[row][col]?.revealedType === "cheat"
           ) {
             tileSubClass = "tileElementUsedViaCheat";
           }
