@@ -277,20 +277,16 @@ function App() {
       setTimeout(() => finalizeMapDeposit(wordDeposited), 250);
     } else if (bFoundInBank) {
       setWordEntered(true);
-      console.log("Found in bank = ", wordDeposited);
       setTimeout(() => finalizeBankDeposit(wordDeposited), 250);
     } else if (alreadyFoundInBank) {
       setWordDuplicate(true);
       setTimeout(() => finalizeWordDuplicate(), 250);
-      console.log(wordDeposited + " already found in bank");
     } else if (alreadyFoundOnMap) {
       setWordDuplicate(true);
       setTimeout(() => finalizeWordDuplicate(), 250);
-      console.log(wordDeposited + " already found on map");
     } else {
       setWordNotFound(true);
       setTimeout(() => finalizeWordNotFound(), 250);
-      console.log("not found at all.");
     }
   }
   function finalizeMapDeposit(wordDeposited) {
@@ -350,7 +346,7 @@ function App() {
 
   function checkForEndGame() {
     if (mapDeposit.length > 0 && mapDeposit.length === wordsPlaced.length) {
-      setGameOver(true);
+      setTimeout(() => setGameOver(true), 1000);
       return true;
     }
     return false;
@@ -420,17 +416,19 @@ function App() {
   }
 
   function handleDeleteSelected(e) {
-    e.preventDefault();
-    const value = e.target.getAttribute("id").split(",");
-    const row = parseInt(value[0]);
-    const col = parseInt(value[1]);
+    if (e.target.getAttribute("id")) {
+      e.preventDefault();
+      const value = e.target.getAttribute("id").split(",");
+      const row = parseInt(value[0]);
+      const col = parseInt(value[1]);
 
-    const result = doesWordExistHere (row, col);
-    if (result && result.word) {
-      const updateWordsPlaced = wordsPlaced.filter(
-        (word) => word.word !== result.word
-      );
-      setWordsPlaced(updateWordsPlaced);
+      const result = doesWordExistHere (row, col);
+      if (result && result.word) {
+        const updateWordsPlaced = wordsPlaced.filter(
+          (word) => word.word !== result.word
+        );
+        setWordsPlaced(updateWordsPlaced);
+      }
     }
   }
 
@@ -493,32 +491,27 @@ function App() {
         ref={boardRef}
         onWheel={onWheel}
       >
-        {gameOver === false && (
-          <Animated
-            animationIn="bounceInLeft"
-            animationOut="fadeOut"
-            isVisible={true}
-          >
-            <Board
-              onClick={tileClick}
-              onMouseOver={mouseOver}
-              onKeyDown={handleGlobalKeyPress}
-              placingWord={placingWord}
-              hoverColumn={hoverColumn}
-              hoverRow={hoverRow}
-              wordDirection={wordDirection}
-              boardDetails={mapDetails}
-              isEditor={isEditor}
-              gameOver={gameOver}
-            />
-          </Animated>
+        {gameOver=== false && (
+        <Animated
+          animationIn="bounceInLeft"
+          animationOut="fadeOut"
+          isVisible={true}
+        >
+          <Board
+            onClick={tileClick}
+            onMouseOver={mouseOver}
+            onKeyDown={handleGlobalKeyPress}
+            placingWord={placingWord}
+            hoverColumn={hoverColumn}
+            hoverRow={hoverRow}
+            wordDirection={wordDirection}
+            boardDetails={mapDetails}
+            isEditor={isEditor}
+            gameOver={gameOver}
+          />
+        </Animated>
         )}
         {gameOver === true && (
-          <Animated
-            animationIn="bounceOutLeft"
-            animationOut="fadeOut"
-            isVisible={true}
-          >
             <Board
               onClick={tileClick}
               onMouseOver={mouseOver}
@@ -531,7 +524,6 @@ function App() {
               isEditor={isEditor}
               gameOver={gameOver}
             />
-          </Animated>
         )}
       </div>
       <div className="FooterSolver">

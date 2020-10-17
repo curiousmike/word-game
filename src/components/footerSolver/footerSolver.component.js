@@ -59,8 +59,10 @@ function FooterSolver(props) {
   const letterElements = generateLetterElements();
   const typedLetters = buildTypedLetterElements();
   let wordEnteredAnimation = "";
+  let animDuration = 250;
   if (props.wordEntered) {
-    wordEnteredAnimation = "zoomOut";
+    wordEnteredAnimation = "fadeOutRight"; //zoomOut";
+    animDuration = 250;
   }
   if (props.wordDuplicate) {
     wordEnteredAnimation = "shake";
@@ -77,7 +79,7 @@ function FooterSolver(props) {
       {props.invalidEntry && (
         <Animated
           animationIn={"shake"}
-          animationInDuration={250}
+          animationInDuration={animDuration}
           visible={true}
         >
           <div className="letterElements">{letterElements}</div>
@@ -89,7 +91,7 @@ function FooterSolver(props) {
       {playWordEnteredAnim && (
         <Animated
           animationIn={wordEnteredAnimation}
-          animationInDuration={250}
+          animationInDuration={animDuration}
           visible={true}
         >
           <div className="typedLetters">{typedLetters}</div>

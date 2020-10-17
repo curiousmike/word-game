@@ -5,6 +5,10 @@ import { Animated } from "react-animated-css";
 const boardDimensions = 10;
 const emptyBoardTile = "*";
 
+function randomIntFromInterval(min, max) { // min and max included 
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 function Board(props) {
   let boardRef = useRef(null);
 
@@ -22,6 +26,7 @@ function Board(props) {
     let endCol = null;
     let startRow = null;
     let endRow = null;
+    let animationDuration = 250;
     // If placing word, do the stuff for that here
     if (placingWord) {
       const wordLen = placingWord.length;
@@ -54,15 +59,26 @@ function Board(props) {
         let tileSubClass = props.isEditor
           ? "tileElementUnused"
           : "tileElementBlank";
-        const animateMe =
+        let animateMe;
+        let animateName; //
+        if (props.gameOver){
+          animateMe = true;
+          const anims = [
+            "bounceOutRight", "bounceOutLeft", "bounceOutUp", "bounceOutDown"
+          ];
+          animateName = anims[randomIntFromInterval(0,3)];
+          animationDuration = 1000;
+        } else {
+          animateMe =
           props.boardDetails[row] && props.boardDetails[row][col]
             ? props.boardDetails[row][col].animateMe
-            : false;
-        const animateName = animateMe
+            : false; 
+          animateName = animateMe
           ? props.boardDetails[row][col].revealedType === "word"
             ? "wobble"
             : "tada"
           : "";
+        }
         let internalValue = props.isEditor ? "." : "";
         if (
           props.boardDetails[row] &&
@@ -110,13 +126,12 @@ function Board(props) {
           internalValue = placingWord[wordIndex];
           tileSubClass = "tileElementPlacing";
         }
-
         divs.push(
-          <div id={row + "," + col}>
+          <div id={row + "," + col} key={row + "," + col}>
             {animateMe && (
               <Animated
                 animationIn={animateName}
-                animationInDuration={500}
+                animationInDuration={animationDuration}
                 visible={true}
               >
                 <div
