@@ -22,7 +22,14 @@
 .FooterSolver {
   grid-column: span 1;
   grid-row-start: 2;
-  background-color: rgba(255, 0, 0, 0.51);
+  background-color: rgba(0, 76, 255, 0.51);
+}
+
+.LevelOver {
+  display: grid;
+  grid-row-start: 1;
+  align-items: center;
+  background-color: lightcyan;
 }
 
 .mapLoadSave {

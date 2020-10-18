@@ -7,6 +7,7 @@ import WordList from "./components/wordList/wordList.component";
 import Button from "./components/button/button.component";
 import Board from "./components/board/board.component";
 import FooterSolver from "./components/footerSolver/footerSolver.component";
+import LevelComplete from "./components/levelComplete/levelComplete.component";
 import { Solver } from "./solver.js";
 const boardDimensions = 10;
 function App() {
@@ -526,6 +527,11 @@ function App() {
             />
         )}
       </div>
+      {gameOver == true && (
+        <div className ="LevelOver">
+          <LevelComplete level = {1}/>
+        </div>
+      )}
       <div className="FooterSolver">
         <FooterSolver
           letters={letterInput}
