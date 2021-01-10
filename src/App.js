@@ -33,6 +33,17 @@ function App() {
 
   const boardRef = useRef(null); // using this to set the board to focus once word is selected.  This makes keyboard interactivity work immediately
 
+  var count = 5;
+var foo = {
+    count:10,
+    bar: function () {
+        var count = 15;
+        setTimeout(function(){
+            console.log ('this.count = ', this.count);
+        }, 500);
+    }
+};
+foo.bar (); 
   function createEmptyBoard() {
     const emptyBoardTile = {
       value: "*",
